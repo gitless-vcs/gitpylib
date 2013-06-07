@@ -34,8 +34,27 @@ def of_file(fp):
     # The file doesn't exist.
     return FILE_NOT_FOUND
 
-  s = out[0]
+  return _status_from_output(out[0], fp)
 
+  
+def of_repo():
+  """Gets the status of the repo.
+
+  Yields:
+      A pair (status, fp) for each file in the repo. fp is a filepath and
+      status is the status of the file (TRACKED_UNMODIFIED, TRACKED_MODIFIED,
+      UNTRACKED, ASSUME_UNCHANGED or STAGED).
+  """
+  unused_ok, out, unused_err = common.git_call('ls-files -tvcdmo')
+
+  for f_out in out.splitlines():
+    # output is 'S filename' where S is a character representing the status of
+    # the file.
+    fp = f_out[2:]
+    yield (_status_from_output(f_out[0], fp), fp)
+
+
+def _status_from_output(s, fp):
   if s is '?':
     return UNTRACKED
   elif s is 'h':
@@ -53,3 +72,5 @@ def of_file(fp):
       return STAGED
 
   raise Exception("Failed to get status of file %s, out %s" % (fp, out))
+
+
