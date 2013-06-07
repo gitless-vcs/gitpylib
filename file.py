@@ -26,6 +26,8 @@ def stage(fp):
   if not os.path.exists(fp):
     return FILE_NOT_FOUND
 
+  fp = common.fix_case(fp)
+
   common.safe_git_call('add %s' % fp)
   return SUCCESS
 
@@ -42,6 +44,8 @@ def unstage(fp):
   """
   if not os.path.exists(fp):
     return FILE_NOT_FOUND
+
+  fp = common.fix_case(fp)
 
   # "git reset" currently returns 0 (if successful) while "git reset
   # $pathspec" returns 0 iff the index matches HEAD after resetting (on all
@@ -66,6 +70,8 @@ def assume_unchanged(fp):
   if not os.path.exists(fp):
     return FILE_NOT_FOUND
 
+  fp = common.fix_case(fp)
+
   common.safe_git_call('update-index --assume-unchanged %s' % fp)
   return SUCCESS
 
@@ -82,6 +88,8 @@ def not_assume_unchanged(fp):
   """
   if not os.path.exists(fp):
     return FILE_NOT_FOUND
+
+  fp = common.fix_case(fp)
 
   common.safe_git_call('update-index --no-assume-unchanged %s' % fp)
   return SUCCESS

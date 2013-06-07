@@ -29,7 +29,7 @@ def of_file(fp):
     status codes (see Status class above).
   """
   ok, out, unused_err = common.git_call(
-      'ls-files -tvcdmo --error-unmatch %s' % fp)
+      'ls-files -tvcdo --error-unmatch %s' % fp)
   if not ok:
     # The file doesn't exist.
     return FILE_NOT_FOUND
@@ -45,7 +45,7 @@ def of_repo():
       status is the status of the file (TRACKED_UNMODIFIED, TRACKED_MODIFIED,
       UNTRACKED, ASSUME_UNCHANGED or STAGED).
   """
-  unused_ok, out, unused_err = common.git_call('ls-files -tvcdmo')
+  unused_ok, out, unused_err = common.git_call('ls-files -tvcdo')
 
   for f_out in out.splitlines():
     # output is 'S filename' where S is a character representing the status of
@@ -71,6 +71,8 @@ def _status_from_output(s, fp):
     elif s is 'A':
       return STAGED
 
-  raise Exception("Failed to get status of file %s, out %s" % (fp, out))
+    raise Exception("Failed to get status of file %s, out %s" % (fp, out))
+
+  raise Exception("Failed to get status of file %s, status %s" % (fp, s))
 
 
