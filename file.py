@@ -93,3 +93,24 @@ def not_assume_unchanged(fp):
 
   common.safe_git_call('update-index --no-assume-unchanged %s' % fp)
   return SUCCESS
+
+
+def diff(fp):
+  """Compute the diff of the given file with its last committed version.
+
+  Args:
+    fp: the path of the file to diff (e.g., 'paper.tex').
+
+  Returns:
+    A pair (result, out) where result is one of:
+      - SUCCESS: the operation completed successfully or
+      - FILE_NOT_FOUND: the given file doesn't exist;
+    and out is the output of the diff command.
+  """
+  if not os.path.exists(fp):
+    return (FILE_NOT_FOUND, '')
+
+  fp = common.fix_case(fp)
+
+  out, unused_err = common.safe_git_call('diff %s' % fp)
+  return (SUCCESS, out)
