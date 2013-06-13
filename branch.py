@@ -24,6 +24,15 @@ def create(name):
   common.safe_git_call('branch %s' % name)
 
 
+def force_delete(name):
+  """Force-deletes the branch with the given name.
+
+  Args:
+    name: the name of the branch to delete.
+  """
+  common.safe_git_call('branch -d %s' % name)
+
+
 def current():
   """Get the name of the current branch."""
   for name, is_current, unused_tracks in status_all():

@@ -21,16 +21,46 @@ def pop(msg):
   """Pop the stash that has the given msg (if found).
 
   Args:
-    msg: the msg under it which was stashed.
+    msg: the message corresponding to the stash to pop.
+  """
+  s_id = _stash_id(msg)
+  if not s_id:
+    return
+
+  common.safe_git_call('stash pop %s' % s_id)
+
+
+def drop(msg):
+  """Drop the stash that has the given msg (if found).
+
+  Args:
+    msg: the message corresponding to the stash to drop.
+  """
+  s_id = _stash_id(msg)
+  if not s_id:
+    return
+
+  common.safe_git_call('stash drop %s' % s_id)
+
+
+def _stash_id(msg):
+  """Gets the stash id of the stash with the given msg.
+
+  Args:
+    msg: the message of the stash to retrieve.
+
+  Returns:
+    The stash id of the stash with the given msg or None if no matching stash is
+    found.
   """
   out, unused_err = common.safe_git_call('stash list --grep=": %s"' % msg)
 
   if not out:
-    return
+    return None
 
   pattern = '(stash@\{.+\}): '
   result = re.match(pattern, out)
   if not result:
     raise Exception('Unexpected output %s' % out)
 
-  common.safe_git_call('stash pop %s' % result.group(1))
+  return result.group(1)
