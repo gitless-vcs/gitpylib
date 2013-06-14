@@ -45,3 +45,20 @@ def fix_case(fp):
     if f.lower() == bn.lower():
       return f
   raise Exception("Invalid file %s: the file doesn't exist" % fp)
+
+
+def git_dir():
+  """Gets the path to the .git directory
+  
+  Returns:
+    The absolute path to the git directory or None if the current working
+    directory is not a Git repository.
+  """
+  cd = os.getcwd()
+  ret = os.path.join(cd, '.git') 
+  while cd != '/': # TODO(sperezde): windows support
+    if os.path.isdir(ret):
+      return ret
+    cd = os.path.dirname(cd)
+    ret = os.path.join(cd, '.git')
+  return None
