@@ -42,6 +42,20 @@ def unstage(fp):
     - SUCCESS: the operation completed successfully.
     - FILE_NOT_FOUND: the given file doesn't exist.
   """
+  return reset(fp, 'HEAD')
+
+
+def reset(fp, cp):
+  """Resets the given file to the given commit point.
+  
+  Args:
+    fp: the path of the file to reset.
+    cp: the commit point to reset the file to.
+
+  Returns:
+    - SUCCESS: the operation completed successfully.
+    - FILE_NOT_FOUND: the given file doesn't exist.
+  """
   if not os.path.exists(fp):
     return FILE_NOT_FOUND
 
@@ -53,8 +67,14 @@ def unstage(fp):
   # http://comments.gmane.org/gmane.comp.version-control.git/211242.
   # So, we need to ignore the return code (unfortunately) and hope that it
   # works.
-  common.git_call('reset HEAD %s' % fp)
+  common.git_call('reset %s %s' % (cp, fp))
   return SUCCESS
+
+
+def show(fp, cp, dst):
+  fp = common.fix_case(fp)
+
+  common.safe_git_call('show %s:%s >%s' % (cp, fp, dst))
 
 
 def assume_unchanged(fp):
