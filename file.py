@@ -11,6 +11,7 @@ import common
 
 SUCCESS = 1
 FILE_NOT_FOUND = 2
+FILE_NOT_FOUND_AT_CP = 3
 
 
 def stage(fp):
@@ -42,20 +43,6 @@ def unstage(fp):
     - SUCCESS: the operation completed successfully.
     - FILE_NOT_FOUND: the given file doesn't exist.
   """
-  return reset(fp, 'HEAD')
-
-
-def reset(fp, cp):
-  """Resets the given file to the given commit point.
-  
-  Args:
-    fp: the path of the file to reset.
-    cp: the commit point to reset the file to.
-
-  Returns:
-    - SUCCESS: the operation completed successfully.
-    - FILE_NOT_FOUND: the given file doesn't exist.
-  """
   if not os.path.exists(fp):
     return FILE_NOT_FOUND
 
@@ -67,14 +54,30 @@ def reset(fp, cp):
   # http://comments.gmane.org/gmane.comp.version-control.git/211242.
   # So, we need to ignore the return code (unfortunately) and hope that it
   # works.
-  common.git_call('reset %s %s' % (cp, fp))
+  common.git_call('reset %s HEAD' % fp)
   return SUCCESS
 
 
-def show(fp, cp, dst):
-  fp = common.fix_case(fp)
+def show(fp, cp):
+  """Gets the contents of file fp at commit cp.
+  
+  Args:
+    fp: the file to get its contents from.
+    cp: the commit point.
 
-  common.safe_git_call('show %s:%s >%s' % (cp, fp, dst))
+  Returns:
+    a pair (status, out) where status is one of FILE_NOT_FOUND_AT_CP or SUCCESS
+    and out is the content of fp at cp.
+  """
+  # TODO(sperezde): handle casing ok here.
+  # fp = common.fix_case(fp)
+
+  ok, out, unused_err = common.git_call('show %s:%s' % (cp, fp))
+
+  if not ok:
+    return (FILE_NOT_FOUND_AT_CP, None)
+
+  return (SUCCESS, out)
 
 
 def assume_unchanged(fp):
