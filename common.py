@@ -62,3 +62,15 @@ def git_dir():
     cd = os.path.dirname(cd)
     ret = os.path.join(cd, '.git')
   return None
+
+
+def remove_dups(list, key):
+  """Returns a new list without duplicates."""
+  keys = set()
+  ret = []
+  for a in list:
+    k_a = key(a)
+    if k_a not in keys:
+      keys.add(k_a)
+      ret.append(a)
+  return ret

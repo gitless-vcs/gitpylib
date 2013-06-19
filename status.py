@@ -22,6 +22,7 @@ DELETED = 8
 DELETED_STAGED = 9 # there are staged changes but then the file was deleted.
 # the file is marked as assume-unchanged but it was deleted.
 DELETED_ASSUME_UNCHANGED = 10
+IN_CONFLICT = 11
 
 
 def of_file(fp):
@@ -49,11 +50,11 @@ def of_repo():
   Yields:
       A pair (status, fp) for each file in the repo. fp is a filepath and
       status is the status of the file (TRACKED_UNMODIFIED, TRACKED_MODIFIED,
-      UNTRACKED, ASSUME_UNCHANGED or STAGED).
+      UNTRACKED, ASSUME_UNCHANGED, STAGED, etc -- see above).
   """
   unused_ok, out, unused_err = common.git_call('ls-files -tvco')
 
-  for f_out in out.splitlines():
+  for f_out in common.remove_dups(out.splitlines(), lambda x: x[2:]):
     # output is 'S filename' where S is a character representing the status of
     # the file.
     fp = f_out[2:]
@@ -82,9 +83,10 @@ def _status_from_output(s, fp):
       return DELETED
     elif s is 'AD':
       return DELETED_STAGED
-
     raise Exception(
         "Failed to get status of file %s, out %s, status %s" % (fp, out, s))
+  elif s is 'M':
+    return IN_CONFLICT
 
   raise Exception("Failed to get status of file %s, status %s" % (fp, s))
 
