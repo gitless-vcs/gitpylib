@@ -25,6 +25,22 @@ def commit(files, msg):
   return out
 
 
+def commit_include(files, msg):
+  """Record changes in the local repository.
+
+  Before making a commit of changes staged so far, the files given are staged.
+  
+  Args:
+    files: the files to stage before commiting.
+    msg: the commit message.
+
+  Returns:
+    The output of the commit command.
+  """
+  out, unused_err = common.safe_git_call('commit -m\"%s\" -i %s' % (msg, ' '.join(files)))
+  return out
+
+
 # TODO(sperezde): it seems like src could also be a commit point.
 def merge(src):
   """Merges changes in the src branch into the current branch.
