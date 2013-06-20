@@ -30,7 +30,7 @@ def force_delete(name):
   Args:
     name: the name of the branch to delete.
   """
-  common.safe_git_call('branch -d %s' % name)
+  common.safe_git_call('branch -D %s' % name)
 
 
 def current():
