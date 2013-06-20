@@ -64,5 +64,10 @@ def merge(src):
   return (SUCCESS, None)
 
 
+def abort_merge():
+  """Aborts the current merge."""
+  common.safe_git_call('merge --abort')
+
+
 def merge_in_progress():
   return os.path.exists(os.path.join(common.git_dir(), 'MERGE_HEAD'))
