@@ -9,6 +9,7 @@ import common
 SUCCESS = 1
 LOCAL_CHANGES_WOULD_BE_LOST = 2
 NOTHING_TO_MERGE = 3
+CONFLICT = 4
 
 
 def commit(files, msg):
@@ -71,3 +72,19 @@ def abort_merge():
 
 def merge_in_progress():
   return os.path.exists(os.path.join(common.git_dir(), 'MERGE_HEAD'))
+
+
+def rebase(new_base):
+  ok, out, err = common.git_call('rebase %s' % new_base)
+  print 'out is <%s>, err is <%s>' % (out, err)
+  if not ok:
+    return (CONFLICT, ['tbd1', 'tbd2'])
+  return (SUCCESS, out)
+
+
+def abort_rebase():
+  common.safe_git_call('rebase --abort')
+
+
+def rebase_in_progress():
+  return os.path.exists(os.path.join(common.git_dir(), 'rebase-apply'))

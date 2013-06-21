@@ -66,6 +66,7 @@ def status_all():
     Tuples of the form (name, is_current, tracks) where is_current is a boolean
     value and tracks is a string representing the remote branch it tracks (in 
     the format 'remote_name/remote_branch') or None if it is a local branch.
+    name could be equal to '(no branch)' if the user is in no branch.
   """
   out, unused_err = common.safe_git_call('branch --list -vv')
   for b in out.splitlines():
@@ -86,6 +87,9 @@ def _parse_output(out):
   # * indicates whether it's the current branch or not, next comes the name of
   # the branch followed by the sha1, optionally followed by some remote tracking
   # info (between brackets) and finally the message of the last commit.
+  if out.startswith('* (no branch)'):
+    return ('(no branch)', True, None)
+
   pattern = '([\*| ]) (\w+)[ ]+\w+ (.+)'
   result = re.match(pattern, out)
   if not result:
@@ -95,4 +99,4 @@ def _parse_output(out):
   if result.group(3)[0] == '[':
     tracks = result.group(3).split(':')[0][1:]
 
-  return (result.group(2), result.group(1) == '*', tracks)
+  return (result.group(2).strip(), result.group(1) == '*', tracks)
