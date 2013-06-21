@@ -82,6 +82,21 @@ def rebase(new_base):
   return (SUCCESS, out)
 
 
+def rebase_continue():
+  ok, out, err = common.git_call('rebase --continue')
+  print 'out is <%s>, err is <%s>' % (out, err)
+  if not ok:
+    return (CONFLICT, ['tbd1', 'tbd2'])
+  return (SUCCESS, out)
+
+def skip_rebase_commit():
+  ok, out, err = common.git_call('rebase --skip')
+  print 'out is <%s>, err is <%s>' % (out, err)
+  if not ok:
+    return (CONFLICT, ['tbd1', 'tbd2'])
+  return (SUCCESS, out)
+
+
 def abort_rebase():
   common.safe_git_call('rebase --abort')
 
