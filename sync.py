@@ -2,6 +2,7 @@
 
 
 import os
+import re
 
 import common
 
@@ -9,7 +10,8 @@ import common
 SUCCESS = 1
 LOCAL_CHANGES_WOULD_BE_LOST = 2
 NOTHING_TO_MERGE = 3
-CONFLICT = 4
+NOTHING_TO_REBASE= 4
+CONFLICT = 5
 
 
 def commit(files, msg):
@@ -78,7 +80,14 @@ def rebase(new_base):
   ok, out, err = common.git_call('rebase %s' % new_base)
   print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
+    if err == (
+        'Cannot rebase: You have unstaged changes.\nPlease commit or stash '
+        'them.\n'):
+      # TODO(sperezde): add the files whose changes would be lost.
+      return (LOCAL_CHANGES_WOULD_BE_LOST, None)
     return (CONFLICT, ['tbd1', 'tbd2'])
+  if re.match('Current branch \w+ is up to date.\n', out):
+    return (NOTHING_TO_REBASE, None)
   return (SUCCESS, out)
 
 
