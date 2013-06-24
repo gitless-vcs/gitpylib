@@ -57,9 +57,11 @@ def merge(src):
   ok, out, err = common.git_call('merge %s' % src)
   print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
-    if out.startswith('Auto-merging'):
+    #if out.startswith('Auto-merging'):
       # conflict?
-      raise Exception('conflict?')
+    #  raise Exception('conflict?')
+    if 'Automatic merge failed; fix conflicts and then commit the result.' in out:
+      return (CONFLICT, None)
     else:
       return (LOCAL_CHANGES_WOULD_BE_LOST, err.splitlines()[1:-2])
   if out == 'Already up-to-date.\n':
@@ -85,7 +87,7 @@ def rebase(new_base):
         'them.\n'):
       # TODO(sperezde): add the files whose changes would be lost.
       return (LOCAL_CHANGES_WOULD_BE_LOST, None)
-    return (CONFLICT, ['tbd1', 'tbd2'])
+    return (CONFLICT, None)
   if re.match('Current branch \w+ is up to date.\n', out):
     return (NOTHING_TO_REBASE, None)
   return (SUCCESS, out)
@@ -95,7 +97,7 @@ def rebase_continue():
   ok, out, err = common.git_call('rebase --continue')
   print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
-    return (CONFLICT, ['tbd1', 'tbd2'])
+    return (CONFLICT, None)
   return (SUCCESS, out)
 
 def skip_rebase_commit():
