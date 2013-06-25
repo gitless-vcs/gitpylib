@@ -23,6 +23,8 @@ DELETED_STAGED = 9 # there are staged changes but then the file was deleted.
 # the file is marked as assume-unchanged but it was deleted.
 DELETED_ASSUME_UNCHANGED = 10
 IN_CONFLICT = 11
+IGNORED = 12
+IGNORED_STAGED = 13
 
 
 def of_file(fp):
@@ -63,6 +65,10 @@ def of_repo():
 
 def _status_from_output(s, fp):
   if s is '?':
+    # We need to see if it is an ignored file.
+    out, unused_err = common.safe_git_call('status --porcelain %s' % fp)
+    if len(out) is 0:
+      return IGNORED
     return UNTRACKED
   elif s is 'h':
     return ASSUME_UNCHANGED if os.path.exists(fp) else DELETED_ASSUME_UNCHANGED
@@ -83,6 +89,10 @@ def _status_from_output(s, fp):
     if s is 'M':
       return TRACKED_MODIFIED
     elif s is 'A':
+      # It could be ignored and staged.
+      out, unused_err = common.safe_git_call('ls-files -ic --exclude-standard %s' % fp)
+      if len(out):
+        return IGNORED_STAGED
       return STAGED
     elif s is 'D':
       return DELETED
