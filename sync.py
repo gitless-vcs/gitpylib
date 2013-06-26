@@ -12,6 +12,7 @@ LOCAL_CHANGES_WOULD_BE_LOST = 2
 NOTHING_TO_MERGE = 3
 NOTHING_TO_REBASE= 4
 CONFLICT = 5
+NOTHING_TO_PUSH = 6
 
 
 def commit(files, msg):
@@ -114,3 +115,11 @@ def abort_rebase():
 
 def rebase_in_progress():
   return os.path.exists(os.path.join(common.git_dir(), 'rebase-apply'))
+
+
+def push(src_branch, dst_remote, dst_branch):
+  out, err = common.safe_git_call('push %s %s:%s' % (dst_remote, src_branch, dst_branch))
+  if err == 'Everything up-to-date\n':
+    return (NOTHING_TO_PUSH, None)
+  # Not sure why, but git push returns output in stderr.
+  return (SUCCESS, err)
