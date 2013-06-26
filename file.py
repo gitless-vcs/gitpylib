@@ -137,3 +137,24 @@ def diff(fp):
 
   out, unused_err = common.safe_git_call('diff %s' % fp)
   return (SUCCESS, out)
+
+
+def staged_diff(fp):
+  """Compute the diff of the staged version of fp with its last committed version.
+
+  Args:
+    fp: the path of the file to diff (e.g., 'paper.tex').
+
+  Returns:
+    A pair (result, out) where result is one of:
+      - SUCCESS: the operation completed successfully or
+      - FILE_NOT_FOUND: the given file doesn't exist;
+    and out is the output of the diff command.
+  """
+  if not os.path.exists(fp):
+    return (FILE_NOT_FOUND, '')
+
+  fp = common.fix_case(fp)
+
+  out, unused_err = common.safe_git_call('diff --cached %s' % fp)
+  return (SUCCESS, out)
