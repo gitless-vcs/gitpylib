@@ -6,6 +6,10 @@ import re
 import common
 
 
+SUCCESS = 1
+UNFETCHED_OBJECT = 2
+
+
 def checkout(name):
   """Checkout branch.
 
@@ -73,6 +77,23 @@ def status_all():
     yield _parse_output(b)
 
 
+def set_upstream(branch, upstream_branch):
+  """Sets the upstream branch to branch.
+
+  Args:
+    branch: the branch to set an upstream branch.
+    upstream_branch: the upstream branch.
+  """
+  ok, out, err = common.git_call(
+      'branch --set-upstream %s %s' % (branch, upstream_branch))
+
+  if not ok:
+    if 'Not a valid object name' in err:
+      return UNFETCHED_OBJECT
+
+  return SUCCESS
+
+
 def _parse_output(out):
   """Parses branch list output.
 
@@ -97,6 +118,11 @@ def _parse_output(out):
 
   tracks = None
   if result.group(3)[0] == '[':
-    tracks = result.group(3).split(':')[0][1:]
+    track_info = result.group(3).split(']')[0][1:]
+    tracks = ''
+    if ':' in track_info:
+      tracks = track_info.split(':')[0]
+    else:
+      tracks = track_info
 
   return (result.group(2).strip(), result.group(1) == '*', tracks)
