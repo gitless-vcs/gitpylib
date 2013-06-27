@@ -57,6 +57,10 @@ def merge(src):
     - LOCAL_CHANGES_WOULD_BE_LOST
   """
   ok, out, err = common.git_call('merge %s' % src)
+  return _parse_merge_output(ok, out, err)
+
+
+def _parse_merge_output(ok, out, err):
   print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
     #if out.startswith('Auto-merging'):
@@ -138,3 +142,8 @@ def push(src_branch, dst_remote, dst_branch):
 def pull_rebase(remote, remote_b):
   ok, out, err = common.git_call('pull --rebase %s %s' % (remote, remote_b))
   return _parse_rebase_output(ok, out, err)
+
+
+def pull_merge(remote, remote_b):
+  ok, out, err = common.git_call('pull %s %s' % (remote, remote_b))
+  return _parse_merge_output(ok, out, err)
