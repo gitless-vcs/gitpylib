@@ -13,6 +13,7 @@ NOTHING_TO_MERGE = 3
 NOTHING_TO_REBASE= 4
 CONFLICT = 5
 NOTHING_TO_PUSH = 6
+PUSH_FAIL = 7
 
 
 def commit(files, msg):
@@ -81,11 +82,18 @@ def merge_in_progress():
 
 def rebase(new_base):
   ok, out, err = common.git_call('rebase %s' % new_base)
+  return _parse_rebase_output(ok, out, err)
+
+
+def _parse_rebase_output(ok, out, err):
   print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
     if err == (
         'Cannot rebase: You have unstaged changes.\nPlease commit or stash '
         'them.\n'):
+      # TODO(sperezde): add the files whose changes would be lost.
+      return (LOCAL_CHANGES_WOULD_BE_LOST, None)
+    elif 'The following untracked working tree files would be overwritten' in err:
       # TODO(sperezde): add the files whose changes would be lost.
       return (LOCAL_CHANGES_WOULD_BE_LOST, None)
     return (CONFLICT, None)
@@ -118,8 +126,15 @@ def rebase_in_progress():
 
 
 def push(src_branch, dst_remote, dst_branch):
-  out, err = common.safe_git_call('push %s %s:%s' % (dst_remote, src_branch, dst_branch))
+  ok, out, err = common.git_call('push %s %s:%s' % (dst_remote, src_branch, dst_branch))
   if err == 'Everything up-to-date\n':
     return (NOTHING_TO_PUSH, None)
+  elif 'Updates were rejected because a pushed branch tip is behind its remote' in err:
+    return (PUSH_FAIL, None)
   # Not sure why, but git push returns output in stderr.
   return (SUCCESS, err)
+
+
+def pull_rebase(remote, remote_b):
+  ok, out, err = common.git_call('pull --rebase %s %s' % (remote, remote_b))
+  return _parse_rebase_output(ok, out, err)

@@ -6,6 +6,7 @@ import common
 SUCCESS = 1
 REMOTE_NOT_FOUND = 2
 REMOTE_UNREACHABLE = 3
+REMOTE_BRANCH_NOT_FOUND = 4
 
 
 def add(remote_name, remote_url):
@@ -41,3 +42,11 @@ def show(remote_name):
 
 def rm(remote_name):
   common.safe_git_call('remote rm %s' % remote_name)
+
+
+def head_exist(remote_name, head):
+  ok, out, unused_err = common.git_call('ls-remote --heads %s %s' % (remote_name, head))
+  if not ok:
+    return (False, REMOTE_UNREACHABLE)
+  return (len(out) > 0, REMOTE_BRANCH_NOT_FOUND)
+
