@@ -61,7 +61,7 @@ def merge(src):
 
 
 def _parse_merge_output(ok, out, err):
-  print 'out is <%s>, err is <%s>' % (out, err)
+  # print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
     #if out.startswith('Auto-merging'):
       # conflict?
@@ -90,7 +90,7 @@ def rebase(new_base):
 
 
 def _parse_rebase_output(ok, out, err):
-  print 'out is <%s>, err is <%s>' % (out, err)
+  # print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
     if err == (
         'Cannot rebase: You have unstaged changes.\nPlease commit or stash '
@@ -108,14 +108,14 @@ def _parse_rebase_output(ok, out, err):
 
 def rebase_continue():
   ok, out, err = common.git_call('rebase --continue')
-  print 'out is <%s>, err is <%s>' % (out, err)
+  # print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
     return (CONFLICT, None)
   return (SUCCESS, out)
 
 def skip_rebase_commit():
   ok, out, err = common.git_call('rebase --skip')
-  print 'out is <%s>, err is <%s>' % (out, err)
+  # print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
     return (CONFLICT, ['tbd1', 'tbd2'])
   return (SUCCESS, out)
