@@ -25,6 +25,7 @@ DELETED_ASSUME_UNCHANGED = 10
 IN_CONFLICT = 11
 IGNORED = 12
 IGNORED_STAGED = 13
+MODIFIED_SINCE_STAGED = 14
 
 
 def of_file(fp):
@@ -64,15 +65,15 @@ def of_repo():
 
 
 def _status_from_output(s, fp):
-  if s is '?':
+  if s == '?':
     # We need to see if it is an ignored file.
     out, unused_err = common.safe_git_call('status --porcelain %s' % fp)
     if len(out) is 0:
       return IGNORED
     return UNTRACKED
-  elif s is 'h':
+  elif s == 'h':
     return ASSUME_UNCHANGED if os.path.exists(fp) else DELETED_ASSUME_UNCHANGED
-  elif s is 'H':
+  elif s == 'H':
     # We need to use status --porcelain to figure out whether it's deleted,
     # modified or not.
     # status is case-sensitive for files. But if we reached this point and the
@@ -86,23 +87,25 @@ def _status_from_output(s, fp):
     # Output is in the form <status> <name>. We are only interested in the
     # status part.
     s = out.strip().split()[0]
-    if s is 'M':
+    if s == 'M':
       return TRACKED_MODIFIED
-    elif s is 'A':
+    elif s == 'A':
       # It could be ignored and staged.
       out, unused_err = common.safe_git_call('ls-files -ic --exclude-standard %s' % fp)
       if len(out):
         return IGNORED_STAGED
       return STAGED
-    elif s is 'D':
+    elif s == 'D':
       return DELETED
-    elif s is 'AD':
+    elif s == 'AD':
       return DELETED_STAGED
+    elif s == 'MM':
+      return MODIFIED_SINCE_STAGED
     # elif s is 'AM':
     #  return MODIFIED_STAGED
     raise Exception(
         "Failed to get status of file %s, out %s, status %s" % (fp, out, s))
-  elif s is 'M':
+  elif s == 'M':
     return IN_CONFLICT
 
   raise Exception("Failed to get status of file %s, status %s" % (fp, s))
