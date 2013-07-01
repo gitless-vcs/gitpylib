@@ -19,7 +19,7 @@ UNTRACKED = 5
 ASSUME_UNCHANGED = 6
 STAGED = 7
 DELETED = 8
-DELETED_STAGED = 9 # there are staged changes but then the file was deleted.
+DELETED_STAGED = 9  # there are staged changes but then the file was deleted.
 # the file is marked as assume-unchanged but it was deleted.
 DELETED_ASSUME_UNCHANGED = 10
 IN_CONFLICT = 11
@@ -46,7 +46,7 @@ def of_file(fp):
 
   return _status_from_output(out[0], fp)
 
-  
+
 def of_repo():
   """Gets the status of the repo.
 
@@ -91,7 +91,8 @@ def _status_from_output(s, fp):
       return TRACKED_MODIFIED
     elif s == 'A':
       # It could be ignored and staged.
-      out, unused_err = common.safe_git_call('ls-files -ic --exclude-standard %s' % fp)
+      out, unused_err = common.safe_git_call(
+          'ls-files -ic --exclude-standard %s' % fp)
       if len(out):
         return IGNORED_STAGED
       return STAGED
@@ -109,5 +110,3 @@ def _status_from_output(s, fp):
     return IN_CONFLICT
 
   raise Exception("Failed to get status of file %s, status %s" % (fp, s))
-
-

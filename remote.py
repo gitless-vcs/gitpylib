@@ -25,7 +25,7 @@ def show(remote_name):
 
   Args:
     remote_name: the name of the remote to get info from.
-  
+
   Returns:
     None if remote doesn't exist or the output of the cmd if otherwise.
   """
@@ -37,7 +37,7 @@ def show(remote_name):
       raise Exception('Unexpected output %s, err %s' % (out, err))
   if not out:
     return (REMOTE_NOT_FOUND, None)
-  return (SUCCESS, out) 
+  return (SUCCESS, out)
 
 
 def rm(remote_name):

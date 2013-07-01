@@ -51,9 +51,10 @@ def status(name):
     name: the name of the branch to status.
 
   Returns:
-    A tuple (exists, is_current, tracks) where exists and is_current are boolean
-    values and tracks is a string representing the remote branch it tracks (in
-    the format 'remote_name/remote_branch') or None if it is a local branch.
+    A tuple (exists, is_current, tracks) where exists and is_current are
+    boolean values and tracks is a string representing the remote branch it
+    tracks (in the format 'remote_name/remote_branch') or None if it is a local
+    branch.
   """
   out, unused_err = common.safe_git_call('branch --list -vv %s' % name)
   if not out:
@@ -65,10 +66,10 @@ def status(name):
 
 def status_all():
   """Get the status of all existing branches.
-  
+
   Yields:
     Tuples of the form (name, is_current, tracks) where is_current is a boolean
-    value and tracks is a string representing the remote branch it tracks (in 
+    value and tracks is a string representing the remote branch it tracks (in
     the format 'remote_name/remote_branch') or None if it is a local branch.
     name could be equal to '(no branch)' if the user is in no branch.
   """
@@ -102,7 +103,7 @@ def _parse_output(out):
 
   Returns:
     A tuple (name, is_current, tracks) where is_current is a boolean value and
-    tracks is a string representing the remote branch it tracks (in 
+    tracks is a string representing the remote branch it tracks (in
     the format 'remote_name/remote_branch') or None if it is a local branch.
   """
   # * indicates whether it's the current branch or not, next comes the name of

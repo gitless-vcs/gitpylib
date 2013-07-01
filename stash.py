@@ -50,7 +50,7 @@ def _stash_id(msg):
     msg: the message of the stash to retrieve.
 
   Returns:
-    The stash id of the stash with the given msg or None if no matching stash is
+    the stash id of the stash with the given msg or None if no matching stash is
     found.
   """
   out, unused_err = common.safe_git_call('stash list --grep=": %s"' % msg)

@@ -16,7 +16,7 @@ FILE_NOT_FOUND_AT_CP = 3
 
 def stage(fp):
   """Stages the given file.
-  
+
   Args:
     fp: the path of the file to stage (e.g., 'paper.tex').
 
@@ -35,7 +35,7 @@ def stage(fp):
 
 def unstage(fp):
   """Unstages the given file.
-  
+
   Args:
     fp: the path of the file to unstage (e.g., 'paper.tex').
 
@@ -60,7 +60,7 @@ def unstage(fp):
 
 def show(fp, cp):
   """Gets the contents of file fp at commit cp.
-  
+ 
   Args:
     fp: the file to get its contents from.
     cp: the commit point.
@@ -140,7 +140,7 @@ def diff(fp):
 
 
 def staged_diff(fp):
-  """Compute the diff of the staged version of fp with its last committed version.
+  """Compute the diff of staged version vs last committed version.
 
   Args:
     fp: the path of the file to diff (e.g., 'paper.tex').

@@ -25,7 +25,7 @@ def git_call(cmd):
 
 def fix_case(fp):
   """Returns the same filepath with the correct casing.
- 
+
   In UNIX filenames are case-insensitive, meaning that "README" is the same
   thing as "readme" or "ReaDmE" but in Windows these would be different.
   Git commands are case-sensitive but the gitpylib is case-insensitive if
@@ -49,14 +49,14 @@ def fix_case(fp):
 
 def git_dir():
   """Gets the path to the .git directory
-  
+
   Returns:
     The absolute path to the git directory or None if the current working
     directory is not a Git repository.
   """
   cd = os.getcwd()
-  ret = os.path.join(cd, '.git') 
-  while cd != '/': # TODO(sperezde): windows support
+  ret = os.path.join(cd, '.git')
+  while cd != '/':  # TODO(sperezde): windows support
     if os.path.isdir(ret):
       return ret
     cd = os.path.dirname(cd)
