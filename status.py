@@ -26,7 +26,9 @@ DELETED_ASSUME_UNCHANGED = 10
 IN_CONFLICT = 11
 IGNORED = 12
 IGNORED_STAGED = 13
-MODIFIED_SINCE_STAGED = 14
+# the file was a tracked file that was modified after being staged.
+MODIFIED_MODIFIED = 14
+ADDED_MODIFIED = 15  # file is a new file that was added and then modified.
 
 
 def of_file(fp):
@@ -102,9 +104,9 @@ def _status_from_output(s, fp):
     elif s == 'AD':
       return DELETED_STAGED
     elif s == 'MM':
-      return MODIFIED_SINCE_STAGED
-    # elif s is 'AM':
-    #  return MODIFIED_STAGED
+      return MODIFIED_MODIFIED
+    elif s == 'AM':
+      return ADDED_MODIFIED
     raise Exception(
         "Failed to get status of file %s, out %s, status %s" % (fp, out, s))
   elif s == 'M':
