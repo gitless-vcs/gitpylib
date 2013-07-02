@@ -1,4 +1,4 @@
-git-pylib
+gitpylib
 =========
 
 Python library for Git.
