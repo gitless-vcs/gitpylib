@@ -2,7 +2,6 @@
 # Copyright (c) 2013  Santiago Perez De Rosso.
 # Licensed under GNU GPL, version 2.
 
-# TODO(sperezde): rename this to repo.py
 
 import common
 
