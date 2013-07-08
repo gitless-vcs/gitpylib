@@ -2,7 +2,7 @@
 # Copyright (c) 2013  Santiago Perez De Rosso.
 # Licensed under GNU GPL, version 2.
 
-"""Common methods used accross the git-pylib."""
+"""Common methods used accross the gitpylib."""
 
 
 import os
