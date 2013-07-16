@@ -12,6 +12,7 @@ import common
 
 SUCCESS = 1
 UNFETCHED_OBJECT = 2
+INVALID_NAME = 3
 
 
 def checkout(name):
@@ -29,7 +30,11 @@ def create(name):
   Args:
     name: the name of the branch to create.
   """
-  common.safe_git_call('branch %s' % name)
+  ok, unused_out, err = common.git_call('branch %s' % name)
+  if not ok:
+    # TODO(sperezde): check for other errors?
+    return INVALID_NAME
+  return SUCCESS
 
 
 def force_delete(name):
@@ -116,7 +121,7 @@ def _parse_output(out):
   if out.startswith('* (no branch)'):
     return ('(no branch)', True, None)
 
-  pattern = '([\*| ]) (\w+)[ ]+\w+ (.+)'
+  pattern = '([\*| ]) ([^\s]+)[ ]+\w+ (.+)'
   result = re.match(pattern, out)
   if not result:
     raise Exception('Unexpected output %s' % out)
