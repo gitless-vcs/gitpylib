@@ -41,11 +41,37 @@ def fix_case(fp):
     The same filepath with the correct casing (OS-dependent).
   """
   # TODO(sperezde): if windows => do nothing
-  bn = os.path.basename(fp)
-  for f in os.listdir(os.path.dirname(os.path.abspath(fp))):
-    if f.lower() == bn.lower():
-      return f
-  raise Exception("Invalid file %s: the file doesn't exist" % fp)
+  return fp.lower()
+
+
+def real_case(fp):
+  """Returns the same filepath with its real casing.
+
+  Args:
+    fp: the filepath to get the real-casing for. It should correspond to an
+        existing file.
+
+  Returns:
+    The same filepath with it's real casing.
+  """
+  # TODO(sperezde): if windows => do nothing
+  cdir = os.getcwd()
+  ret = []
+  for p in fp.split('/'):
+    found = False
+    for f in os.listdir(cdir):
+      if f.lower() == p.lower():
+        cdir = os.path.join(cdir, p)
+        ret.append(f)
+        found = True
+        break
+    if not found:
+      # TODO(sperezde): fix this hack
+      # raise Exception("Invalid file %s: the file doesn't exist" % fp)
+      # Temp hack until I figure out how to deal with filenames with special
+      # characters.
+      return fp
+  return os.path.join(*ret)
 
 
 def git_dir():

@@ -41,6 +41,8 @@ def of_file(fp):
     FILE_NOT_FOUND if the given file doesn't exist or one of the possible
     status codes.
   """
+  fp = common.fix_case(fp)
+
   ok, out, unused_err = common.git_call(
       'ls-files -tvco --error-unmatch %s' % fp)
   if not ok:
@@ -64,7 +66,7 @@ def of_repo():
     # output is 'S filename' where S is a character representing the status of
     # the file.
     fp = f_out[2:]
-    yield (_status_from_output(f_out[0], fp), fp)
+    yield (_status_from_output(f_out[0], fp), common.real_case(fp))
 
 
 def _status_from_output(s, fp):

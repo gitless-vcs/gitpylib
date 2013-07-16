@@ -70,8 +70,7 @@ def show(fp, cp):
     a pair (status, out) where status is one of FILE_NOT_FOUND_AT_CP or SUCCESS
     and out is the content of fp at cp.
   """
-  # TODO(sperezde): handle casing ok here.
-  # fp = common.fix_case(fp)
+  fp = common.fix_case(fp)
 
   ok, out, unused_err = common.git_call('show %s:%s' % (cp, fp))
 
