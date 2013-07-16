@@ -133,7 +133,7 @@ def diff(fp):
   if not os.path.exists(fp):
     return (FILE_NOT_FOUND, '')
 
-  # Diff only works with real-case :S
+  # Diff expects real case.
   fp = common.real_case(fp)
 
   out, unused_err = common.safe_git_call('diff %s' % fp)

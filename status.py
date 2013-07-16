@@ -41,7 +41,8 @@ def of_file(fp):
     FILE_NOT_FOUND if the given file doesn't exist or one of the possible
     status codes.
   """
-  fp = common.fix_case(fp)
+  # Status expects real case.
+  fp = common.real_case(fp)
 
   ok, out, unused_err = common.git_call(
       'ls-files -tvco --error-unmatch %s' % fp)
