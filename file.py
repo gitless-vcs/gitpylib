@@ -28,7 +28,7 @@ def stage(fp):
   if not os.path.exists(fp):
     return FILE_NOT_FOUND
 
-  fp = common.fix_case(fp)
+  fp = common.real_case(fp)
 
   common.safe_git_call('add %s' % fp)
   return SUCCESS
@@ -47,7 +47,7 @@ def unstage(fp):
   if not os.path.exists(fp):
     return FILE_NOT_FOUND
 
-  fp = common.fix_case(fp)
+  fp = common.real_case(fp)
 
   # "git reset" currently returns 0 (if successful) while "git reset
   # $pathspec" returns 0 iff the index matches HEAD after resetting (on all
@@ -70,7 +70,7 @@ def show(fp, cp):
     a pair (status, out) where status is one of FILE_NOT_FOUND_AT_CP or SUCCESS
     and out is the content of fp at cp.
   """
-  fp = common.fix_case(fp)
+  fp = common.real_case(fp)
 
   ok, out, unused_err = common.git_call('show %s:%s' % (cp, fp))
 
@@ -93,7 +93,7 @@ def assume_unchanged(fp):
   if not os.path.exists(fp):
     return FILE_NOT_FOUND
 
-  fp = common.fix_case(fp)
+  fp = common.real_case(fp)
 
   common.safe_git_call('update-index --assume-unchanged %s' % fp)
   return SUCCESS
@@ -112,7 +112,7 @@ def not_assume_unchanged(fp):
   if not os.path.exists(fp):
     return FILE_NOT_FOUND
 
-  fp = common.fix_case(fp)
+  fp = common.real_case(fp)
 
   common.safe_git_call('update-index --no-assume-unchanged %s' % fp)
   return SUCCESS
@@ -133,7 +133,6 @@ def diff(fp):
   if not os.path.exists(fp):
     return (FILE_NOT_FOUND, '')
 
-  # Diff expects real case.
   fp = common.real_case(fp)
 
   out, unused_err = common.safe_git_call('diff %s' % fp)
@@ -155,7 +154,7 @@ def staged_diff(fp):
   if not os.path.exists(fp):
     return (FILE_NOT_FOUND, '')
 
-  fp = common.fix_case(fp)
+  fp = common.real_case(fp)
 
   out, unused_err = common.safe_git_call('diff --cached %s' % fp)
   return (SUCCESS, out)

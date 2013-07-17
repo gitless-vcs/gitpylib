@@ -9,6 +9,14 @@ import os
 import subprocess
 
 
+# Detect if FS is case-sensitive.
+import tempfile
+
+tmp_handle, tmp_path = tempfile.mkstemp()
+with tempfile.NamedTemporaryFile() as f:
+  FS_CASE_SENSITIVE = not os.path.exists(f.name.upper())
+
+
 def safe_git_call(cmd):
   ok, out, err = git_call(cmd)
   if ok:
@@ -24,26 +32,6 @@ def git_call(cmd):
   return p.returncode == 0, out, err
 
 
-def fix_case(fp):
-  """Returns the same filepath with the correct casing.
-
-  In UNIX filenames are case-insensitive, meaning that "README" is the same
-  thing as "readme" or "ReaDmE" but in Windows these would be different.
-  Git commands are case-sensitive but the gitpylib is case-insensitive if
-  executing in UNIX and case-sensitive in Windows thus making its behaviour
-  consistent with the OS. This method is used to normalize the filepath before
-  passing it to a Git command.
-
-  Args:
-    fp: the filepath to case-correct. It should correspond to an existing file.
-
-  Returns:
-    The same filepath with the correct casing (OS-dependent).
-  """
-  # TODO(sperezde): if windows => do nothing
-  return fp.lower()
-
-
 def real_case(fp):
   """Returns the same filepath with its real casing.
 
@@ -54,7 +42,9 @@ def real_case(fp):
   Returns:
     The same filepath with it's real casing.
   """
-  # TODO(sperezde): if windows => do nothing
+  if FS_CASE_SENSITIVE:
+    return fp
+
   cdir = os.getcwd()
   ret = []
   for p in fp.split('/'):
