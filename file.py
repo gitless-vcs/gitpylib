@@ -115,18 +115,12 @@ def diff(fp):
     fp: the path of the file to diff (e.g., 'paper.tex').
 
   Returns:
-    A pair (result, out) where result is one of:
-      - SUCCESS: the operation completed successfully or
-      - FILE_NOT_FOUND: the given file doesn't exist;
-    and out is the output of the diff command.
+    the output of the diff command.
   """
-  if not os.path.exists(fp):
-    return (FILE_NOT_FOUND, '')
-
   fp = common.real_case(fp)
 
-  out, unused_err = common.safe_git_call('diff %s' % fp)
-  return (SUCCESS, out)
+  out, unused_err = common.safe_git_call('diff -- %s' % fp)
+  return out
 
 
 def staged_diff(fp):
@@ -136,15 +130,9 @@ def staged_diff(fp):
     fp: the path of the file to diff (e.g., 'paper.tex').
 
   Returns:
-    A pair (result, out) where result is one of:
-      - SUCCESS: the operation completed successfully or
-      - FILE_NOT_FOUND: the given file doesn't exist;
-    and out is the output of the diff command.
+    the output of the diff command.
   """
-  if not os.path.exists(fp):
-    return (FILE_NOT_FOUND, '')
-
   fp = common.real_case(fp)
 
-  out, unused_err = common.safe_git_call('diff --cached %s' % fp)
-  return (SUCCESS, out)
+  out, unused_err = common.safe_git_call('diff --cached -- %s' % fp)
+  return out
