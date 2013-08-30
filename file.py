@@ -57,7 +57,7 @@ def unstage(fp):
 
 def show(fp, cp):
   """Gets the contents of file fp at commit cp.
- 
+
   Args:
     fp: the file to get its contents from.
     cp: the commit point.

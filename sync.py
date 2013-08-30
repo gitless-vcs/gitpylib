@@ -39,7 +39,7 @@ def commit_include(files, msg):
   """Record changes in the local repository.
 
   Before making a commit of changes staged so far, the files given are staged.
-  
+
   Args:
     files: the files to stage before commiting.
     msg: the commit message.
@@ -105,7 +105,7 @@ def _parse_rebase_output(ok, out, err):
       # TODO(sperezde): add the files whose changes would be lost.
       return (LOCAL_CHANGES_WOULD_BE_LOST, None)
     elif ('The following untracked working tree files would be overwritten'
-              in err):
+          in err):
       # TODO(sperezde): add the files whose changes would be lost.
       return (LOCAL_CHANGES_WOULD_BE_LOST, None)
     return (CONFLICT, None)
@@ -144,7 +144,7 @@ def push(src_branch, dst_remote, dst_branch):
   if err == 'Everything up-to-date\n':
     return (NOTHING_TO_PUSH, None)
   elif ('Updates were rejected because a pushed branch tip is behind its remote'
-            in err):
+        in err):
     return (PUSH_FAIL, None)
   # Not sure why, but git push returns output in stderr.
   return (SUCCESS, err)

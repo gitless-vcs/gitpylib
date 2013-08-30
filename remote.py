@@ -49,8 +49,8 @@ def rm(remote_name):
 
 
 def head_exist(remote_name, head):
-  ok, out, unused_err = common.git_call('ls-remote --heads %s %s' % (remote_name, head))
+  ok, out, unused_err = common.git_call(
+      'ls-remote --heads %s %s' % (remote_name, head))
   if not ok:
     return (False, REMOTE_UNREACHABLE)
   return (len(out) > 0, REMOTE_BRANCH_NOT_FOUND)
-

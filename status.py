@@ -81,7 +81,6 @@ def _status_from_output(s, fp):
   elif s == 'H':
     # We need to use status --porcelain to figure out whether it's deleted,
     # modified or not.
-   
     out, unused_err = common.safe_git_call('status --porcelain %s' % fp)
     if len(out) is 0:
       return TRACKED_UNMODIFIED
