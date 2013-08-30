@@ -109,7 +109,7 @@ def _parse_rebase_output(ok, out, err):
       # TODO(sperezde): add the files whose changes would be lost.
       return (LOCAL_CHANGES_WOULD_BE_LOST, None)
     return (CONFLICT, None)
-  if re.match('Current branch \w+ is up to date.\n', out):
+  if re.match('Current branch [^\s]+ is up to date.\n', out):
     return (NOTHING_TO_REBASE, None)
   return (SUCCESS, out)
 
