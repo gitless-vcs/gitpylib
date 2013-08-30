@@ -81,11 +81,7 @@ def _status_from_output(s, fp):
   elif s == 'H':
     # We need to use status --porcelain to figure out whether it's deleted,
     # modified or not.
-    # status is case-sensitive for files. But if we reached this point and the
-    # file doesn't exist then it's deleted.
-    if not os.path.exists(fp):
-      return DELETED
-
+   
     out, unused_err = common.safe_git_call('status --porcelain %s' % fp)
     if len(out) is 0:
       return TRACKED_UNMODIFIED

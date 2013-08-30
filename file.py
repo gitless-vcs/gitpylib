@@ -42,11 +42,7 @@ def unstage(fp):
 
   Returns:
     - SUCCESS: the operation completed successfully.
-    - FILE_NOT_FOUND: the given file doesn't exist.
   """
-  if not os.path.exists(fp):
-    return FILE_NOT_FOUND
-
   fp = common.real_case(fp)
 
   # "git reset" currently returns 0 (if successful) while "git reset
@@ -55,7 +51,7 @@ def unstage(fp):
   # http://comments.gmane.org/gmane.comp.version-control.git/211242.
   # So, we need to ignore the return code (unfortunately) and hope that it
   # works.
-  common.git_call('reset %s HEAD' % fp)
+  common.git_call('reset HEAD %s' % fp)
   return SUCCESS
 
 
@@ -90,9 +86,6 @@ def assume_unchanged(fp):
     - SUCCESS: the operation completed successfully.
     - FILE_NOT_FOUND: the given file doesn't exist.
   """
-  if not os.path.exists(fp):
-    return FILE_NOT_FOUND
-
   fp = common.real_case(fp)
 
   common.safe_git_call('update-index --assume-unchanged %s' % fp)
@@ -103,15 +96,12 @@ def not_assume_unchanged(fp):
   """Unmarks the given assumed-unchanged file.
 
   Args:
-    fp: the path of the file to stage (e.g., 'paper.tex').
+    fp: the path of the file to unmark as assumed unchanged.
 
   Returns:
     - SUCCESS: the operation completed successfully.
     - FILE_NOT_FOUND: the given file doesn't exist.
   """
-  if not os.path.exists(fp):
-    return FILE_NOT_FOUND
-
   fp = common.real_case(fp)
 
   common.safe_git_call('update-index --no-assume-unchanged %s' % fp)
