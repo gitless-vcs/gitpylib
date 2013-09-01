@@ -44,7 +44,7 @@ def of_file(fp):
   fp = common.real_case(fp)
 
   ok, out, unused_err = common.git_call(
-      'ls-files -tvco --error-unmatch %s' % fp)
+      'ls-files -tvco --error-unmatch "%s"' % fp)
   if not ok:
     # The file doesn't exist.
     return FILE_NOT_FOUND
@@ -72,7 +72,7 @@ def of_repo():
 def _status_from_output(s, fp):
   if s == '?':
     # We need to see if it is an ignored file.
-    out, unused_err = common.safe_git_call('status --porcelain %s' % fp)
+    out, unused_err = common.safe_git_call('status --porcelain "%s"' % fp)
     if len(out) is 0:
       return IGNORED
     return UNTRACKED
@@ -81,7 +81,7 @@ def _status_from_output(s, fp):
   elif s == 'H':
     # We need to use status --porcelain to figure out whether it's deleted,
     # modified or not.
-    out, unused_err = common.safe_git_call('status --porcelain %s' % fp)
+    out, unused_err = common.safe_git_call('status --porcelain "%s"' % fp)
     if len(out) is 0:
       return TRACKED_UNMODIFIED
     # Output is in the form <status> <name>. We are only interested in the
@@ -92,7 +92,7 @@ def _status_from_output(s, fp):
     elif s == 'A':
       # It could be ignored and staged.
       out, unused_err = common.safe_git_call(
-          'ls-files -ic --exclude-standard %s' % fp)
+          'ls-files -ic --exclude-standard "%s"' % fp)
       if len(out):
         return IGNORED_STAGED
       return STAGED

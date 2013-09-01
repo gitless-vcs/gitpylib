@@ -31,7 +31,7 @@ def commit(files, msg):
     The output of the commit command.
   """
   out, unused_err = common.safe_git_call(
-      'commit -m\"%s\" %s' % (msg, ' '.join(files)))
+      'commit -m"%s" "%s"' % (msg, '" "'.join(files)))
   return out
 
 
