@@ -52,8 +52,18 @@ def of_file(fp):
   return _status_from_output(out[0], fp)
 
 
+def au_files():
+  """Gets all assumed unchanged files. Relative to the repo dir."""
+  out, unused_err = common.safe_git_call('ls-files -v %s' % common.repo_dir())
+  ret = [] 
+  for f_out in common.remove_dups(out.splitlines(), lambda x: x[2:]):
+    if f_out[0] == 'h':
+      ret.append(f_out[2:])
+  return ret
+
+
 def of_repo():
-  """Gets the status of the repo.
+  """Gets the status of the repo relative to the cwd.
 
   Yields:
       A pair (status, fp) for each file in the repo. fp is a filepath and

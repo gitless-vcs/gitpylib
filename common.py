@@ -81,6 +81,11 @@ def git_dir():
   return None
 
 
+def repo_dir():
+  """Gets the full path to the Git repo."""
+  return git_dir()[:-4] # Strip "/.git"
+
+
 def remove_dups(list, key):
   """Returns a new list without duplicates."""
   keys = set()
