@@ -77,10 +77,10 @@ def show(fp, cp):
 
 
 def assume_unchanged(fp):
-  """Marks the given file as assumed-unchanged.
+  """Marks the given file as assumed unchanged.
 
   Args:
-    fp: the path of the file to stage (e.g., 'paper.tex').
+    fp: the path of the file to mark as assumed unchanged.
 
   Returns:
     - SUCCESS: the operation completed successfully.
@@ -93,7 +93,7 @@ def assume_unchanged(fp):
 
 
 def not_assume_unchanged(fp):
-  """Unmarks the given assumed-unchanged file.
+  """Unmarks the given assumed unchanged file.
 
   Args:
     fp: the path of the file to unmark as assumed unchanged.
