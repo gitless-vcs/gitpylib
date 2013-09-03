@@ -52,15 +52,11 @@ def commit_include(files, msg):
   return out
 
 
-# TODO(sperezde): it seems like src could also be a commit point.
 def merge(src):
   """Merges changes in the src branch into the current branch.
 
   Args:
     src: the source branch to pick up changes from.
-
-  Returns:
-    - LOCAL_CHANGES_WOULD_BE_LOST
   """
   ok, out, err = common.git_call('merge %s' % src)
   return _parse_merge_output(ok, out, err)

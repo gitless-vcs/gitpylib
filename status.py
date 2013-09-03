@@ -56,7 +56,7 @@ def au_files():
   """Gets all assumed unchanged files. Paths are relative to the repo dir."""
   out, unused_err = common.safe_git_call(
       'ls-files -v --full-name %s' % common.repo_dir())
-  ret = [] 
+  ret = []
   for f_out in common.remove_dups(out.splitlines(), lambda x: x[2:]):
     if f_out[0] == 'h':
       ret.append(f_out[2:])
@@ -67,7 +67,7 @@ def of_repo():
   """Gets the status of the repo relative to the cwd.
 
   Yields:
-      A pair (status, fp) for each file in the repo. fp is a filepath and
+      A pair (status, fp) for each file in the repo. fp is a file path and
       status is the status of the file (TRACKED_UNMODIFIED, TRACKED_MODIFIED,
       UNTRACKED, ASSUME_UNCHANGED, STAGED, etc -- see above).
   """

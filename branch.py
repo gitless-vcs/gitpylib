@@ -60,7 +60,7 @@ def status(name):
     name: the name of the branch to status.
 
   Returns:
-    A tuple (exists, is_current, tracks) where exists and is_current are
+    a tuple (exists, is_current, tracks) where exists and is_current are
     boolean values and tracks is a string representing the remote branch it
     tracks (in the format 'remote_name/remote_branch') or None if it is a local
     branch.
@@ -77,7 +77,7 @@ def status_all():
   """Get the status of all existing branches.
 
   Yields:
-    Tuples of the form (name, is_current, tracks) where is_current is a boolean
+    tuples of the form (name, is_current, tracks) where is_current is a boolean
     value and tracks is a string representing the remote branch it tracks (in
     the format 'remote_name/remote_branch') or None if it is a local branch.
     name could be equal to '(no branch)' if the user is in no branch.
@@ -111,7 +111,7 @@ def _parse_output(out):
     out: the output for one branch.
 
   Returns:
-    A tuple (name, is_current, tracks) where is_current is a boolean value and
+    a tuple (name, is_current, tracks) where is_current is a boolean value and
     tracks is a string representing the remote branch it tracks (in
     the format 'remote_name/remote_branch') or None if it is a local branch.
   """

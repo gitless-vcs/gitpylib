@@ -33,14 +33,14 @@ def git_call(cmd):
 
 
 def real_case(fp):
-  """Returns the same filepath with its real casing.
+  """Returns the same file path with its real casing.
 
   Args:
-    fp: the filepath to get the real-casing for. It should correspond to an
+    fp: the file path to get the real-casing for. It should correspond to an
         existing file.
 
   Returns:
-    The same filepath with it's real casing.
+    the same file path with its real casing.
   """
   if FS_CASE_SENSITIVE:
     return fp
@@ -68,7 +68,7 @@ def git_dir():
   """Gets the path to the .git directory
 
   Returns:
-    The absolute path to the git directory or None if the current working
+    the absolute path to the git directory or None if the current working
     directory is not a Git repository.
   """
   cd = os.getcwd()
@@ -83,11 +83,22 @@ def git_dir():
 
 def repo_dir():
   """Gets the full path to the Git repo."""
-  return git_dir()[:-4] # Strip "/.git"
+  return git_dir()[:-4]  # Strip "/.git"
 
 
 def remove_dups(list, key):
-  """Returns a new list without duplicates."""
+  """Returns a new list without duplicates.
+
+  Given two elements e1, e2 from list, e1 is considered to be a duplicate of e2
+  if key(e1) == key(e2).
+  
+  Args:
+    list: the list to read from.
+    key: a function that receives an element from list and returns its key.
+
+  Returns:
+    a new list without duplicates.
+  """
   keys = set()
   ret = []
   for a in list:

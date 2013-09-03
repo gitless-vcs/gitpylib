@@ -59,7 +59,7 @@ def show(fp, cp):
   """Gets the contents of file fp at commit cp.
 
   Args:
-    fp: the file to get its contents from.
+    fp: the file path to get contents from.
     cp: the commit point.
 
   Returns:
@@ -84,7 +84,6 @@ def assume_unchanged(fp):
 
   Returns:
     - SUCCESS: the operation completed successfully.
-    - FILE_NOT_FOUND: the given file doesn't exist.
   """
   fp = common.real_case(fp)
 
@@ -100,7 +99,6 @@ def not_assume_unchanged(fp):
 
   Returns:
     - SUCCESS: the operation completed successfully.
-    - FILE_NOT_FOUND: the given file doesn't exist.
   """
   fp = common.real_case(fp)
 
