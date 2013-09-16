@@ -5,8 +5,6 @@
 
 import subprocess
 
-import common
-
 
 def log():
   subprocess.call('git log', shell=True)
