@@ -20,35 +20,24 @@ NOTHING_TO_PUSH = 6
 PUSH_FAIL = 7
 
 
-def commit(files, msg):
+def commit(files, msg, skip_checks=False, stage_files=False):
   """Record changes in the local repository.
 
   Args:
     files: the files to commit.
     msg: the commit message.
+    skip_checks: if the pre-commit hook should be skipped or not (defaults to
+      False).
+    stage_files: whether to stage the given files before commiting or not.
 
   Returns:
-    The output of the commit command.
+    the output of the commit command.
   """
   out, unused_err = common.safe_git_call(
-      'commit -m"%s" "%s"' % (msg, '" "'.join(files)))
-  return out
-
-
-def commit_include(files, msg):
-  """Record changes in the local repository.
-
-  Before making a commit of changes staged so far, the files given are staged.
-
-  Args:
-    files: the files to stage before commiting.
-    msg: the commit message.
-
-  Returns:
-    The output of the commit command.
-  """
-  out, unused_err = common.safe_git_call(
-      'commit -m\"%s\" -i %s' % (msg, ' '.join(files)))
+      'commit {}{}-m"{}" "{}"'.format(
+          '--no-verify ' if skip_checks else '',
+          '-i ' if stage_files else '',
+          msg, '" "'.join(files)))
   return out
 
 

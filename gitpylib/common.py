@@ -91,7 +91,7 @@ def remove_dups(list, key):
 
   Given two elements e1, e2 from list, e1 is considered to be a duplicate of e2
   if key(e1) == key(e2).
-  
+
   Args:
     list: the list to read from.
     key: a function that receives an element from list and returns its key.

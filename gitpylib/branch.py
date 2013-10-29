@@ -13,6 +13,9 @@ import common
 SUCCESS = 1
 UNFETCHED_OBJECT = 2
 INVALID_NAME = 3
+NONEXISTENT_BRANCH = 4
+BRANCH_ALREADY_EXISTS = 5
+INVALID_SP = 6
 
 
 def checkout(name):
@@ -20,20 +23,35 @@ def checkout(name):
 
   Args:
     name: the name of the branch to checkout.
+
+  Returns:
+    SUCCESS or NONEXISTENT_BRANCH
   """
-  common.safe_git_call('checkout %s' % name)
+  ok, _, _ = common.git_call('checkout %s' % name)
+  if not ok:
+    return NONEXISTENT_BRANCH
+  return SUCCESS
 
 
-def create(name):
+def create(name, sp='HEAD'):
   """Creates a new branch with the given name.
 
   Args:
     name: the name of the branch to create.
+    sp: starting point. The commit from where to 'branch out.' (Defaults to
+      HEAD.)
+
+  Returns:
+    SUCCESS, INVALID_NAME or BRANCH_ALREADY_EXISTS.
   """
-  ok, unused_out, err = common.git_call('branch %s' % name)
+  ok, _, err = common.git_call('branch {} {}'.format(name, sp))
   if not ok:
-    # TODO(sperezde): check for other errors?
-    return INVALID_NAME
+    if 'is not a valid branch name' in err:
+      return INVALID_NAME
+    elif 'already exists' in err:
+      return BRANCH_ALREADY_EXISTS
+    elif 'Not a valid object name' in err:
+      return INVALID_SP
   return SUCCESS
 
 
@@ -42,8 +60,14 @@ def force_delete(name):
 
   Args:
     name: the name of the branch to delete.
+
+  Returns:
+    SUCCESS or NONEXISTENT_BRANCH
   """
-  common.safe_git_call('branch -D %s' % name)
+  ok, _, _ = common.git_call('branch -D %s' % name)
+  if not ok:
+    return NONEXISTENT_BRANCH
+  return SUCCESS
 
 
 def current():

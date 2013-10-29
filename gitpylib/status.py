@@ -84,7 +84,7 @@ def _status_from_output(s, fp):
   if s == '?':
     # We need to see if it is an ignored file.
     out, unused_err = common.safe_git_call('status --porcelain "%s"' % fp)
-    if len(out) is 0:
+    if not len(out):
       return IGNORED
     return UNTRACKED
   elif s == 'h':
@@ -93,7 +93,7 @@ def _status_from_output(s, fp):
     # We need to use status --porcelain to figure out whether it's deleted,
     # modified or not.
     out, unused_err = common.safe_git_call('status --porcelain "%s"' % fp)
-    if len(out) is 0:
+    if not len(out):
       return TRACKED_UNMODIFIED
     # Output is in the form <status> <name>. We are only interested in the
     # status part.
