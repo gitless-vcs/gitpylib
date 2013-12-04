@@ -186,13 +186,14 @@ def _process_diff_output(diff_out):
 
   for line in diff_out:
     # @@ -(start of old),(length of old) +(start of new),(length of new) @@
-    new_hunk_regex = "^@@ -([0-9]+),([0-9]+) \+([0-9]+),([0-9]+) @@"
+    new_hunk_regex = "^@@ -([0-9]+)[,]?([0-9]*) \+([0-9]+)[,]?([0-9]*) @@"
     new_hunk_info = re.search(new_hunk_regex, line)
     if new_hunk_info:
-      old_line_number = int(new_hunk_info.group(1))
-      old_diff_length = int(new_hunk_info.group(2))
-      new_line_number = int(new_hunk_info.group(3))
-      new_diff_length = int(new_hunk_info.group(4))
+      get_info_or_zero = lambda g: 0 if g == '' else int(g)
+      old_line_number = get_info_or_zero(new_hunk_info.group(1))
+      old_diff_length = get_info_or_zero(new_hunk_info.group(2))
+      new_line_number = get_info_or_zero(new_hunk_info.group(3))
+      new_diff_length = get_info_or_zero(new_hunk_info.group(4))
       resulting.append(
           LineData(line, DIFF_INFO, old_line_number, new_line_number))
       max_line_digits = max([old_line_number + old_diff_length,
