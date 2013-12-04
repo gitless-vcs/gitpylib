@@ -14,11 +14,10 @@ setup(
     packages=['gitpylib'],
     license='GPLv2',
     classifiers=(
-      'Development Status :: 2 - Pre-Alpha',
-      'Intended Audience :: Developers',
-      'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
-      'Natural Language :: English',
-      'Programming Language :: Python',
-      'Topic :: Software Development :: Libraries',
-      'Topic :: Software Development :: Version Control',
-      ))
+        'Development Status :: 2 - Pre-Alpha',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
+        'Natural Language :: English',
+        'Programming Language :: Python',
+        'Topic :: Software Development :: Libraries',
+        'Topic :: Software Development :: Version Control'))
