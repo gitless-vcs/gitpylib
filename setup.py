@@ -5,12 +5,12 @@ from setuptools import setup
 
 setup(
     name='gitpylib',
-    version='0.4',
+    version='0.4.1',
     description='A Python library for Git',
     long_description=open('README.md').read(),
     author='Santiago Perez De Rosso',
     author_email='sperezde@csail.mit.edu',
-    url='http://github.com/spderosso/gitpylib',
+    url='http://github.com/sdg-mit/gitpylib',
     packages=['gitpylib'],
     license='GPLv2',
     classifiers=(
