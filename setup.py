@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name='gitpylib',
-    version='0.4.1',
+    version='0.4.2',
     description='A Python library for Git',
     long_description=open('README.md').read(),
     author='Santiago Perez De Rosso',
