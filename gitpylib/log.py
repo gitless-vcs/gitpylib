@@ -7,8 +7,10 @@ import subprocess
 
 
 def log():
-  subprocess.call('git log', shell=True)
+  # The pipe to less shouldn't be here. TODO: fix.
+  subprocess.call('git log | less', shell=True)
 
 
 def log_p():
-  subprocess.call('git log -p', shell=True)
+  # The pipe to less shouldn't be here. TODO: fix.
+  subprocess.call('git log -p | less', shell=True)
