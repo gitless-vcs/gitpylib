@@ -6,6 +6,7 @@
 
 
 import os
+import re
 
 import common
 
@@ -14,6 +15,10 @@ SUCCESS = 1
 FILE_NOT_FOUND = 2
 
 # Possible status in which a Git file can be in.
+# (There are actually many more, but these seem to be the only ones relevant
+# to Gitless.)
+# TODO(sperezde): just have gitpylib's status return the status code and let
+# Gitless figure out the rest by itself.
 TRACKED_UNMODIFIED = 3
 TRACKED_MODIFIED = 4
 UNTRACKED = 5
@@ -25,10 +30,9 @@ DELETED_STAGED = 9  # there are staged changes but then the file was deleted.
 DELETED_ASSUME_UNCHANGED = 10
 IN_CONFLICT = 11
 IGNORED = 12
-IGNORED_STAGED = 13
 # the file was a tracked file that was modified after being staged.
-MODIFIED_MODIFIED = 14
-ADDED_MODIFIED = 15  # file is a new file that was added and then modified.
+MODIFIED_MODIFIED = 13
+ADDED_MODIFIED = 14  # file is a new file that was added and then modified.
 
 
 def of_file(fp):
@@ -43,20 +47,29 @@ def of_file(fp):
   """
   fp = common.real_case(fp)
 
-  ok, out, unused_err = common.git_call(
+  ok, out_ls_files, unused_err = common.git_call(
       'ls-files -tvco --error-unmatch "%s"' % fp)
   if not ok:
     # The file doesn't exist.
     return FILE_NOT_FOUND
+  return _status_file(fp)
 
-  return _status_from_output(out[0], fp)
 
-
-def au_files():
-  """Gets all assumed unchanged files. Paths are relative to the repo dir."""
+def au_files(relative_to_cwd=False):
+  """Gets all assumed unchanged files.
+  
+  Args:
+    relative_to_cwd: if True then only those au files under the cwd are
+      reported. If False, all au files in the repository are reported. (Defaults
+      to False.)
+  """
   out, unused_err = common.safe_git_call(
-      'ls-files -v --full-name %s' % common.repo_dir())
+      'ls-files -v {}'.format(
+          '--full-name "{}"'.format(
+              common.repo_dir()) if not relative_to_cwd else ''))
   ret = []
+  # There could be dups in the output from ls-files if, for example, there are
+  # files in conflict.
   for f_out in common.remove_dups(out.splitlines(), lambda x: x[2:]):
     if f_out[0] == 'h':
       ret.append(f_out[2:])
@@ -71,53 +84,101 @@ def of_repo():
       status is the status of the file (TRACKED_UNMODIFIED, TRACKED_MODIFIED,
       UNTRACKED, ASSUME_UNCHANGED, STAGED, etc -- see above).
   """
-  unused_ok, out, unused_err = common.git_call('ls-files -tvco')
-
-  for f_out in common.remove_dups(out.splitlines(), lambda x: x[2:]):
-    # output is 'S filename' where S is a character representing the status of
-    # the file.
-    fp = f_out[2:]
-    yield (_status_from_output(f_out[0], fp), fp)
+  return _status_cwd()
 
 
-def _status_from_output(s, fp):
-  if s == '?':
-    # We need to see if it is an ignored file.
-    out, unused_err = common.safe_git_call('status --porcelain "%s"' % fp)
-    if not len(out):
-      return IGNORED
-    return UNTRACKED
-  elif s == 'h':
-    return ASSUME_UNCHANGED if os.path.exists(fp) else DELETED_ASSUME_UNCHANGED
-  elif s == 'H':
-    # We need to use status --porcelain to figure out whether it's deleted,
-    # modified or not.
-    out, unused_err = common.safe_git_call('status --porcelain "%s"' % fp)
-    if not len(out):
+# Private functions.
+
+
+def _status_cwd():
+  status_codes = _status_porcelain(os.getcwd())
+  au_fps = set(au_files(relative_to_cwd=True))
+  for au_fp in au_fps:
+    if au_fp not in status_codes:
+      status_codes[au_fp] = None
+  all_fps_under_cwd = common.get_all_fps_under_cwd()
+  for fp_under_cwd in all_fps_under_cwd:
+    if fp_under_cwd not in status_codes:
+      status_codes[fp_under_cwd] = None
+  for s_fp, s in status_codes.iteritems():
+    status = _status_from_output(s, s_fp in au_fps, s_fp)
+    yield (status, s_fp)
+
+
+def _status_file(fp):
+  s = _status_porcelain(fp).get(fp, None)
+  return _status_from_output(s, _is_au_file(fp), fp)
+
+
+def _is_au_file(fp):
+  """True if the given fp corresponds to an assume unchanged file.
+
+  Args:
+    fp: the filepath to check (fp must be a file not a dir).
+  """
+  out, unused_err = common.safe_git_call(
+      'ls-files -v --full-name "{}"'.format(fp))
+  ret = False
+  if out:
+    f_out = common.remove_dups(out.splitlines(), lambda x: x[2:])
+    if len(f_out) != 1:
+      raise Exception('Unexpected output of ls-files: {}'.format(out))
+    ret = f_out[0][0] == 'h'
+  return ret
+
+
+def _status_porcelain(pathspec):
+  """Executes the status porcelain command with the given pathspec.
+
+  Ignored and untracked files are reported.
+
+  Returns:
+    A dict of fp -> status code. All fps are relative to the cwd.
+  """
+  def sanitize_fp(unsanitized_fp):
+    ret = unsanitized_fp.strip()
+    if ret.startswith('"') and ret.endswith('"'):
+      ret = ret[1:-1]
+    # The paths outputted by status are relative to the repodir, we need to make
+    # them relative to the cwd.
+    ret = os.path.relpath(
+        os.path.join(common.repo_dir(), ret), os.getcwd())
+    return ret
+
+  out_status, unused_err = common.safe_git_call(
+      'status --porcelain -u --ignored "{}"'.format(pathspec))
+  ret = {}
+  for f_out_status in out_status.splitlines():
+    # Output is in the form <status> <file path>.
+    # <status> is 2 chars long.
+    ret[sanitize_fp(f_out_status[3:])] = f_out_status[:2]
+  return ret
+
+
+def _status_from_output(s, is_au, fp):
+  if not s:
+    if is_au:
+      if not os.path.exists(fp):
+        return DELETED_ASSUME_UNCHANGED
+      return ASSUME_UNCHANGED
+    else:
       return TRACKED_UNMODIFIED
-    # Output is in the form <status> <name>. We are only interested in the
-    # status part.
-    s = out.strip().split()[0]
-    if s == 'M':
-      return TRACKED_MODIFIED
-    elif s == 'A':
-      # It could be ignored and staged.
-      out, unused_err = common.safe_git_call(
-          'ls-files -ic --exclude-standard "%s"' % fp)
-      if len(out):
-        return IGNORED_STAGED
-      return STAGED
-    elif s == 'D':
-      return DELETED
-    elif s == 'AD':
-      return DELETED_STAGED
-    elif s == 'MM':
-      return MODIFIED_MODIFIED
-    elif s == 'AM':
-      return ADDED_MODIFIED
-    raise Exception(
-        "Failed to get status of file %s, out %s, status %s" % (fp, out, s))
-  elif s == 'M':
+  if s == '??':
+    return UNTRACKED
+  elif s == '!!':
+    return IGNORED
+  elif s == ' M':
+    return TRACKED_MODIFIED
+  elif s == 'A ':
+    return STAGED
+  elif s == ' D':
+    return DELETED
+  elif s == 'AD':
+    return DELETED_STAGED
+  elif s == 'MM':
+    return MODIFIED_MODIFIED
+  elif s == 'AM':
+    return ADDED_MODIFIED
+  elif s == 'AA' or s == 'M ' or s == 'DD' or 'U' in s:
     return IN_CONFLICT
-
-  raise Exception("Failed to get status of file %s, status %s" % (fp, s))
+  raise Exception('Failed to get status of file {}, s is "{}"'.format(fp, s))
