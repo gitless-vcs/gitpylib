@@ -115,9 +115,8 @@ def get_all_fps_under_cwd():
   The filepaths returned are relative to the cwd. The Git directory (.git)
   is ignored.
   """
-  fps = []
   for dirpath, dirnames, filenames in os.walk(os.getcwd()):
     if '.git' in dirnames:
       dirnames.remove('.git')
-    fps.extend([os.path.relpath(os.path.join(dirpath, fp)) for fp in filenames])
-  return fps
+    for fp in filenames:
+      yield os.path.relpath(os.path.join(dirpath, fp))
