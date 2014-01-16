@@ -52,7 +52,36 @@ def of_file(fp):
   if not ok:
     # The file doesn't exist.
     return FILE_NOT_FOUND
-  return _status_file(fp)
+  s = _status_porcelain(fp).get(fp, None)
+  return _status_from_output(s, _is_au_file(fp), fp)
+
+
+def of_repo(include_tracked_unmodified_fps=True):
+  """Gets the status of the repo relative to the cwd.
+
+  Args:
+    include_tracked_unmodified_fps: if True, files that are tracked but
+      unmodified will be also reported. Setting it to False improves performance
+      significantly if the repo is big. (Defaults to True.)
+
+  Yields:
+      A pair (status, fp) for each file in the repo. fp is a file path and
+      status is the status of the file (TRACKED_UNMODIFIED, TRACKED_MODIFIED,
+      UNTRACKED, ASSUME_UNCHANGED, STAGED, etc -- see above).
+  """
+  status_codes = _status_porcelain(os.getcwd())
+  au_fps = set(au_files(relative_to_cwd=True))
+  for au_fp in au_fps:
+    if au_fp not in status_codes:
+      status_codes[au_fp] = None
+  if include_tracked_unmodified_fps:
+    all_fps_under_cwd = common.get_all_fps_under_cwd()
+    for fp_under_cwd in all_fps_under_cwd:
+      if fp_under_cwd not in status_codes:
+        status_codes[fp_under_cwd] = None
+  for s_fp, s in status_codes.iteritems():
+    status = _status_from_output(s, s_fp in au_fps, s_fp)
+    yield (status, s_fp)
 
 
 def au_files(relative_to_cwd=False):
@@ -76,45 +105,7 @@ def au_files(relative_to_cwd=False):
   return ret
 
 
-def of_repo(include_tracked_unmodified_fps=True):
-  """Gets the status of the repo relative to the cwd.
-
-  Args:
-    include_tracked_unmodified_fps: if True, files that are tracked but
-      unmodified will be also reported. Setting it to False improves performance
-      significantly if the repo is big. (Defaults to True.)
-
-  Yields:
-      A pair (status, fp) for each file in the repo. fp is a file path and
-      status is the status of the file (TRACKED_UNMODIFIED, TRACKED_MODIFIED,
-      UNTRACKED, ASSUME_UNCHANGED, STAGED, etc -- see above).
-  """
-  return _status_cwd(
-      include_tracked_unmodified_fps=include_tracked_unmodified_fps)
-
-
 # Private functions.
-
-
-def _status_cwd(include_tracked_unmodified_fps=True):
-  status_codes = _status_porcelain(os.getcwd())
-  au_fps = set(au_files(relative_to_cwd=True))
-  for au_fp in au_fps:
-    if au_fp not in status_codes:
-      status_codes[au_fp] = None
-  if include_tracked_unmodified_fps:
-    all_fps_under_cwd = common.get_all_fps_under_cwd()
-    for fp_under_cwd in all_fps_under_cwd:
-      if fp_under_cwd not in status_codes:
-        status_codes[fp_under_cwd] = None
-  for s_fp, s in status_codes.iteritems():
-    status = _status_from_output(s, s_fp in au_fps, s_fp)
-    yield (status, s_fp)
-
-
-def _status_file(fp):
-  s = _status_porcelain(fp).get(fp, None)
-  return _status_from_output(s, _is_au_file(fp), fp)
 
 
 def _is_au_file(fp):
