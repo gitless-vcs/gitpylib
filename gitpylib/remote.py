@@ -63,6 +63,18 @@ def head_exist(remote_name, head):
   return (len(out) > 0, REMOTE_BRANCH_NOT_FOUND)
 
 
+def branches(remote_name):
+  """Gets the name of the branches in the given remote."""
+  out, err = common.safe_git_call('branch -r')
+  remote_name_len = len(remote_name)
+  for line in out.splitlines():
+    if '->' in line:
+      continue
+    line = line.strip()
+    if line.startswith(remote_name):
+      yield line[remote_name_len+1:]
+
+
 # Private functions.
 
 
