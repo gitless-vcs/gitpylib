@@ -5,7 +5,7 @@
 """Module for dealing with Git config."""
 
 
-import common
+from . import common
 
 
 def get(var):

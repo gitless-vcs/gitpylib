@@ -5,7 +5,7 @@
 """Module for dealing with Git remotes."""
 
 
-import common
+from . import common
 
 
 SUCCESS = 1

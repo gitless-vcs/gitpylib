@@ -9,7 +9,7 @@ import collections
 import os
 import subprocess
 
-import common
+from . import common
 
 
 def pre_commit():

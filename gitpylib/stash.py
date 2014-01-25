@@ -5,7 +5,7 @@
 """Module for dealing with Git stashes."""
 
 
-import common
+from . import common
 
 import re
 

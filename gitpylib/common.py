@@ -7,6 +7,7 @@
 
 import os
 import subprocess
+import sys
 
 
 # Detect if FS is case-sensitive.
@@ -29,6 +30,10 @@ def git_call(cmd):
       'git %s' % cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
       shell=True)
   out, err = p.communicate()
+  # Python 2/3 compatibility.
+  if sys.version > '3':
+    out = out.decode('utf-8')
+    err = err.decode('utf-8')
   return p.returncode == 0, out, err
 
 

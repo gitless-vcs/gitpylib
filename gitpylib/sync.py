@@ -8,7 +8,7 @@
 import os
 import re
 
-import common
+from . import common
 
 
 SUCCESS = 1

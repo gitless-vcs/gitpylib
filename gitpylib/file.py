@@ -9,7 +9,7 @@ import collections
 import os.path
 import re
 
-import common
+from . import common
 
 
 SUCCESS = 1

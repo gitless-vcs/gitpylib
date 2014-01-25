@@ -8,7 +8,7 @@
 import os
 import re
 
-import common
+from . import common
 
 
 SUCCESS = 1
@@ -79,7 +79,14 @@ def of_repo(include_tracked_unmodified_fps=True):
     for fp_under_cwd in all_fps_under_cwd:
       if fp_under_cwd not in status_codes:
         status_codes[fp_under_cwd] = None
-  for s_fp, s in status_codes.iteritems():
+  # Python 2/3 compatibility.
+  status_codes_items = []
+  try:
+    status_codes_items = status_codes.iteritems()
+  except AttributeError:
+    status_codes_items = status_codes.items()
+
+  for s_fp, s in status_codes_items:
     status = _status_from_output(s, s_fp in au_fps, s_fp)
     yield (status, s_fp)
 

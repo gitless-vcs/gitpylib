@@ -3,7 +3,7 @@
 # Licensed under GNU GPL, version 2.
 
 
-import common
+from . import common
 
 
 def clone(repo):
