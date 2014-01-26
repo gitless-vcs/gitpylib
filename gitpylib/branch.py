@@ -158,5 +158,4 @@ def _parse_output(out):
       tracks = track_info.split(':')[0]
     else:
       tracks = track_info
-
-  return (result.group(2).strip(), result.group(1) == '*', tracks)
+  return (result.group(2), result.group(1) == '*', tracks)
