@@ -100,8 +100,8 @@ def au_files(relative_to_cwd=False):
       to False.)
   """
   out, unused_err = common.safe_git_call(
-      'ls-files -v {}'.format(
-          '--full-name "{}"'.format(
+      'ls-files -v {0}'.format(
+          '--full-name "{0}"'.format(
               common.repo_dir()) if not relative_to_cwd else ''))
   ret = []
   # There could be dups in the output from ls-files if, for example, there are
@@ -122,12 +122,12 @@ def _is_au_file(fp):
     fp: the filepath to check (fp must be a file not a dir).
   """
   out, unused_err = common.safe_git_call(
-      'ls-files -v --full-name "{}"'.format(fp))
+      'ls-files -v --full-name "{0}"'.format(fp))
   ret = False
   if out:
     f_out = common.remove_dups(out.splitlines(), lambda x: x[2:])
     if len(f_out) != 1:
-      raise Exception('Unexpected output of ls-files: {}'.format(out))
+      raise Exception('Unexpected output of ls-files: {0}'.format(out))
     ret = f_out[0][0] == 'h'
   return ret
 
@@ -153,7 +153,7 @@ def _status_porcelain(pathspec):
     return os.path.relpath(os.path.join(repo_dir, fp), cwd)
 
   out_status, unused_err = common.safe_git_call(
-      'status --porcelain -u --ignored "{}"'.format(pathspec))
+      'status --porcelain -u --ignored "{0}"'.format(pathspec))
   ret = {}
   for f_out_status in out_status.splitlines():
     # Output is in the form <status> <file path>.
@@ -188,4 +188,4 @@ def _status_from_output(s, is_au, fp):
     return ADDED_MODIFIED
   elif s == 'AA' or s == 'M ' or s == 'DD' or 'U' in s:
     return IN_CONFLICT
-  raise Exception('Failed to get status of file {}, s is "{}"'.format(fp, s))
+  raise Exception('Failed to get status of file {0}, s is "{1}"'.format(fp, s))

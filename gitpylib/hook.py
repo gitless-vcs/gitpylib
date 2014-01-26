@@ -19,7 +19,7 @@ def pre_commit():
 
 def _hook_call(hook_name):
   HookCall = collections.namedtuple('hook_call', ['ok', 'out', 'err'])
-  hook_path = '{}/hooks/{}'.format(common.git_dir(), hook_name)
+  hook_path = '{0}/hooks/{1}'.format(common.git_dir(), hook_name)
   if not os.path.exists(hook_path):
     return HookCall(True, '', '')
   p = subprocess.Popen(

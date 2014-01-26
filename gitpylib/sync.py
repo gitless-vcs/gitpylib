@@ -34,7 +34,7 @@ def commit(files, msg, skip_checks=False, stage_files=False):
     the output of the commit command.
   """
   out, unused_err = common.safe_git_call(
-      'commit {}{}-m"{}" "{}"'.format(
+      'commit {0}{1}-m"{2}" "{3}"'.format(
           '--no-verify ' if skip_checks else '',
           '-i ' if stage_files else '',
           msg, '" "'.join(files)))

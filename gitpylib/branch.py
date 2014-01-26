@@ -44,7 +44,7 @@ def create(name, sp='HEAD'):
   Returns:
     SUCCESS, INVALID_NAME or BRANCH_ALREADY_EXISTS.
   """
-  ok, _, err = common.git_call('branch {} {}'.format(name, sp))
+  ok, _, err = common.git_call('branch {0} {1}'.format(name, sp))
   if not ok:
     if 'is not a valid branch name' in err:
       return INVALID_NAME
