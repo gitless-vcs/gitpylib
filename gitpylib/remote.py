@@ -5,6 +5,9 @@
 """Module for dealing with Git remotes."""
 
 
+import collections
+import re
+
 from . import common
 
 
@@ -49,6 +52,30 @@ def show_all():
   """Get information of all the remotes."""
   out, unused_err = common.safe_git_call('remote')
   return out.splitlines()
+
+
+RemoteInfo = collections.namedtuple(
+    'RemoteInfo', ['name', 'fetch', 'push'])
+
+
+def show_all_v():
+  """Get information of all the remotes (verbose)."""
+  out, unused_err = common.safe_git_call('remote -v')
+  # format is remote_name  url (fetch/push)
+  pattern = '(\w+)\s+(.+)\s+\((\w+)\)'
+  ret = {}
+  for r in out.splitlines():
+    result = re.match(pattern, r)
+    if not result:
+      raise Exception('Unexpected output "%s"' % r)
+    remote_name = result.group(1)
+    url = result.group(2)
+    url_type = result.group(3)
+    if remote_name not in ret:
+      ret[remote_name] = {}
+    ret[remote_name][url_type] = url
+  return [
+      RemoteInfo(rn, ret[rn]['fetch'], ret[rn]['push']) for rn in ret.keys()]
 
 
 def rm(remote_name):
