@@ -14,8 +14,8 @@ import sys
 import tempfile
 
 tmp_handle, tmp_path = tempfile.mkstemp()
-with tempfile.NamedTemporaryFile() as f:
-  FS_CASE_SENSITIVE = not os.path.exists(f.name.upper())
+with tempfile.NamedTemporaryFile() as f_tmp:
+  FS_CASE_SENSITIVE = not os.path.exists(f_tmp.name.upper())
 
 
 def safe_git_call(cmd):

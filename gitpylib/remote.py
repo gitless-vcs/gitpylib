@@ -50,7 +50,7 @@ def show(remote_name):
 
 def show_all():
   """Get information of all the remotes."""
-  out, unused_err = common.safe_git_call('remote')
+  out, _ = common.safe_git_call('remote')
   return out.splitlines()
 
 
@@ -60,9 +60,9 @@ RemoteInfo = collections.namedtuple(
 
 def show_all_v():
   """Get information of all the remotes (verbose)."""
-  out, unused_err = common.safe_git_call('remote -v')
+  out, _ = common.safe_git_call('remote -v')
   # format is remote_name  url (fetch/push)
-  pattern = '(\w+)\s+(.+)\s+\((\w+)\)'
+  pattern = r'(\w+)\s+(.+)\s+\((\w+)\)'
   ret = {}
   for r in out.splitlines():
     result = re.match(pattern, r)
@@ -83,7 +83,7 @@ def rm(remote_name):
 
 
 def head_exist(remote_name, head):
-  ok, out, unused_err = common.git_call(
+  ok, out, _ = common.git_call(
       'ls-remote --heads %s %s' % (remote_name, head))
   if not ok:
     return (False, REMOTE_UNREACHABLE)
@@ -92,7 +92,7 @@ def head_exist(remote_name, head):
 
 def branches(remote_name):
   """Gets the name of the branches in the given remote."""
-  out, err = common.safe_git_call('branch -r')
+  out, _ = common.safe_git_call('branch -r')
   remote_name_len = len(remote_name)
   for line in out.splitlines():
     if '->' in line:

@@ -76,7 +76,7 @@ def show(fp, cp):
   """
   fp = common.real_case(fp)
 
-  ok, out, unused_err = common.git_call('show %s:"%s"' % (cp, fp))
+  ok, out, _ = common.git_call('show %s:"%s"' % (cp, fp))
 
   if not ok:
     return (FILE_NOT_FOUND_AT_CP, None)
@@ -125,7 +125,7 @@ def diff(fp):
   """
   fp = common.real_case(fp)
 
-  out, unused_err = common.safe_git_call('diff -- "%s"' % fp)
+  out, _ = common.safe_git_call('diff -- "%s"' % fp)
   return _process_diff_output(_strip_diff_header(out.splitlines()))
 
 
@@ -140,7 +140,7 @@ def staged_diff(fp):
   """
   fp = common.real_case(fp)
 
-  out, unused_err = common.safe_git_call('diff --cached -- "%s"' % fp)
+  out, _ = common.safe_git_call('diff --cached -- "%s"' % fp)
   return _process_diff_output(_strip_diff_header(out.splitlines()))
 
 
@@ -186,7 +186,7 @@ def _process_diff_output(diff_out):
 
   for line in diff_out:
     # @@ -(start of old),(length of old) +(start of new),(length of new) @@
-    new_hunk_regex = "^@@ -([0-9]+)[,]?([0-9]*) \+([0-9]+)[,]?([0-9]*) @@"
+    new_hunk_regex = r'^@@ -([0-9]+)[,]?([0-9]*) \+([0-9]+)[,]?([0-9]*) @@'
     new_hunk_info = re.search(new_hunk_regex, line)
     if new_hunk_info:
       get_info_or_zero = lambda g: 0 if g == '' else int(g)

@@ -6,7 +6,6 @@
 
 
 import os
-import re
 
 from . import common
 
@@ -47,7 +46,7 @@ def of_file(fp):
   """
   fp = common.real_case(fp)
 
-  ok, out_ls_files, unused_err = common.git_call(
+  ok, out_ls_files, _ = common.git_call(
       'ls-files -tvco --error-unmatch "%s"' % fp)
   if not ok:
     # The file doesn't exist.
@@ -99,7 +98,7 @@ def au_files(relative_to_cwd=False):
       reported. If False, all au files in the repository are reported. (Defaults
       to False.)
   """
-  out, unused_err = common.safe_git_call(
+  out, _ = common.safe_git_call(
       'ls-files -v {0}'.format(
           '--full-name "{0}"'.format(
               common.repo_dir()) if not relative_to_cwd else ''))
@@ -121,7 +120,7 @@ def _is_au_file(fp):
   Args:
     fp: the filepath to check (fp must be a file not a dir).
   """
-  out, unused_err = common.safe_git_call(
+  out, _ = common.safe_git_call(
       'ls-files -v --full-name "{0}"'.format(fp))
   ret = False
   if out:
@@ -152,7 +151,7 @@ def _status_porcelain(pathspec):
     # them relative to the cwd.
     return os.path.relpath(os.path.join(repo_dir, fp), cwd)
 
-  out_status, unused_err = common.safe_git_call(
+  out_status, _ = common.safe_git_call(
       'status --porcelain -u --ignored "{0}"'.format(pathspec))
   ret = {}
   for f_out_status in out_status.splitlines():
