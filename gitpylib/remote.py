@@ -20,6 +20,8 @@ REMOTE_BRANCH_NOT_FOUND = 4
 def add(remote_name, remote_url):
   """Adds the given remote.
 
+  Adds the remote mapping and also does a fetch.
+
   Args:
     remote_name: the name of the remote to add.
     remote_url: the url of the remote to add.
@@ -30,6 +32,7 @@ def add(remote_name, remote_url):
   if _show(remote_url)[0] == REMOTE_UNREACHABLE:
     return REMOTE_UNREACHABLE
   common.safe_git_call('remote add %s %s' % (remote_name, remote_url))
+  common.safe_git_call('fetch %s' % remote_name)
   return SUCCESS
 
 
