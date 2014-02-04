@@ -7,7 +7,7 @@
 
 import re
 
-import common
+from . import common
 
 
 SUCCESS = 1
@@ -44,7 +44,7 @@ def create(name, sp='HEAD'):
   Returns:
     SUCCESS, INVALID_NAME or BRANCH_ALREADY_EXISTS.
   """
-  ok, _, err = common.git_call('branch {} {}'.format(name, sp))
+  ok, _, err = common.git_call('branch {0} {1}'.format(name, sp))
   if not ok:
     if 'is not a valid branch name' in err:
       return INVALID_NAME
@@ -72,7 +72,7 @@ def force_delete(name):
 
 def current():
   """Get the name of the current branch."""
-  for name, is_current, unused_tracks in status_all():
+  for name, is_current, _ in status_all():
     if is_current:
       return name
 
@@ -89,11 +89,11 @@ def status(name):
     tracks (in the format 'remote_name/remote_branch') or None if it is a local
     branch.
   """
-  out, unused_err = common.safe_git_call('branch --list -vv %s' % name)
+  out, _ = common.safe_git_call('branch --list -vv %s' % name)
   if not out:
     return (False, False, None)
 
-  unused_name, is_current, tracks = _parse_output(out)
+  _, is_current, tracks = _parse_output(out)
   return (True, is_current, tracks)
 
 
@@ -106,7 +106,7 @@ def status_all():
     the format 'remote_name/remote_branch') or None if it is a local branch.
     name could be equal to '(no branch)' if the user is in no branch.
   """
-  out, unused_err = common.safe_git_call('branch --list -vv')
+  out, _ = common.safe_git_call('branch --list -vv')
   for b in out.splitlines():
     yield _parse_output(b)
 
@@ -118,7 +118,7 @@ def set_upstream(branch, upstream_branch):
     branch: the branch to set an upstream branch.
     upstream_branch: the upstream branch.
   """
-  ok, out, err = common.git_call(
+  ok, _, err = common.git_call(
       'branch --set-upstream %s %s' % (branch, upstream_branch))
 
   if not ok:
@@ -145,7 +145,7 @@ def _parse_output(out):
   if out.startswith('* (no branch)'):
     return ('(no branch)', True, None)
 
-  pattern = '([\*| ]) ([^\s]+)[ ]+\w+ (.+)'
+  pattern = r'([\*| ]) ([^\s]+)[ ]+\w+ (.+)'
   result = re.match(pattern, out)
   if not result:
     raise Exception('Unexpected output %s' % out)
@@ -158,5 +158,4 @@ def _parse_output(out):
       tracks = track_info.split(':')[0]
     else:
       tracks = track_info
-
-  return (result.group(2).strip(), result.group(1) == '*', tracks)
+  return (result.group(2), result.group(1) == '*', tracks)

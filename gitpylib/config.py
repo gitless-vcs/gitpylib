@@ -5,9 +5,9 @@
 """Module for dealing with Git config."""
 
 
-import common
+from . import common
 
 
 def get(var):
-  ok, out, unused_err = common.git_call('config %s' % var)
+  ok, out, _ = common.git_call('config %s' % var)
   return out.strip() if ok else None

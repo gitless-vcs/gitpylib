@@ -7,14 +7,15 @@
 
 import os
 import subprocess
+import sys
 
 
 # Detect if FS is case-sensitive.
 import tempfile
 
 tmp_handle, tmp_path = tempfile.mkstemp()
-with tempfile.NamedTemporaryFile() as f:
-  FS_CASE_SENSITIVE = not os.path.exists(f.name.upper())
+with tempfile.NamedTemporaryFile() as f_tmp:
+  FS_CASE_SENSITIVE = not os.path.exists(f_tmp.name.upper())
 
 
 def safe_git_call(cmd):
@@ -29,6 +30,10 @@ def git_call(cmd):
       'git %s' % cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
       shell=True)
   out, err = p.communicate()
+  # Python 2/3 compatibility.
+  if sys.version > '3':
+    out = out.decode('utf-8')
+    err = err.decode('utf-8')
   return p.returncode == 0, out, err
 
 

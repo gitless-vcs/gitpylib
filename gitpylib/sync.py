@@ -8,7 +8,7 @@
 import os
 import re
 
-import common
+from . import common
 
 
 SUCCESS = 1
@@ -33,8 +33,8 @@ def commit(files, msg, skip_checks=False, stage_files=False):
   Returns:
     the output of the commit command.
   """
-  out, unused_err = common.safe_git_call(
-      'commit {}{}-m"{}" "{}"'.format(
+  out, _ = common.safe_git_call(
+      'commit {0}{1}-m"{2}" "{3}"'.format(
           '--no-verify ' if skip_checks else '',
           '-i ' if stage_files else '',
           msg, '" "'.join(files)))
@@ -84,9 +84,7 @@ def rebase(new_base):
 def _parse_rebase_output(ok, out, err):
   # print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
-    if err == (
-        'Cannot rebase: You have unstaged changes.\nPlease commit or stash '
-        'them.\n'):
+    if 'You have unstaged changes.\nPlease commit or stash them.\n' in err:
       # TODO(sperezde): add the files whose changes would be lost.
       return (LOCAL_CHANGES_WOULD_BE_LOST, None)
     elif ('The following untracked working tree files would be overwritten'
@@ -94,13 +92,13 @@ def _parse_rebase_output(ok, out, err):
       # TODO(sperezde): add the files whose changes would be lost.
       return (LOCAL_CHANGES_WOULD_BE_LOST, None)
     return (CONFLICT, None)
-  if re.match('Current branch [^\s]+ is up to date.\n', out):
+  if re.match(r'Current branch [^\s]+ is up to date.\n', out):
     return (NOTHING_TO_REBASE, None)
   return (SUCCESS, out)
 
 
 def rebase_continue():
-  ok, out, err = common.git_call('rebase --continue')
+  ok, out, _ = common.git_call('rebase --continue')
   # print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
     return (CONFLICT, None)
@@ -108,7 +106,7 @@ def rebase_continue():
 
 
 def skip_rebase_commit():
-  ok, out, err = common.git_call('rebase --skip')
+  ok, out, _ = common.git_call('rebase --skip')
   # print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
     return (CONFLICT, ['tbd1', 'tbd2'])
@@ -124,7 +122,7 @@ def rebase_in_progress():
 
 
 def push(src_branch, dst_remote, dst_branch):
-  ok, out, err = common.git_call(
+  ok, _, err = common.git_call(
       'push %s %s:%s' % (dst_remote, src_branch, dst_branch))
   if err == 'Everything up-to-date\n':
     return (NOTHING_TO_PUSH, None)
