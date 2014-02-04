@@ -8,7 +8,7 @@ Gitpylib's Release Notes
 * gitpylib now works in python 2.6, 3.2 and 3.3 (in addition to 2.7).
 * Added a function to get the names of the branches in a remote.
 * remote.add will also do a fetch.
-* Bug fixes.
+* Bug fixes and code cleanups.
 
 
 16th Jan 2014 - 0.4.3
