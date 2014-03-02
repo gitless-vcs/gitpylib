@@ -46,10 +46,8 @@ def of_file(fp):
   """
   fp = common.real_case(fp)
 
-  ok, out_ls_files, _ = common.git_call(
-      'ls-files -tvco --error-unmatch "%s"' % fp)
+  ok, _, _ = common.git_call('ls-files -tvco --error-unmatch "%s"' % fp)
   if not ok:
-    # The file doesn't exist.
     return FILE_NOT_FOUND
   s = _status_porcelain(fp).get(fp, None)
   return _status_from_output(s, _is_au_file(fp), fp)

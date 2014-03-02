@@ -122,7 +122,7 @@ def rebase_in_progress():
 
 
 def push(src_branch, dst_remote, dst_branch):
-  ok, _, err = common.git_call(
+  _, _, err = common.git_call(
       'push %s %s:%s' % (dst_remote, src_branch, dst_branch))
   if err == 'Everything up-to-date\n':
     return (NOTHING_TO_PUSH, None)
