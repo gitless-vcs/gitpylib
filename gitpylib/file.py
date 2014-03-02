@@ -204,5 +204,5 @@ def _process_diff_output(diff_out):
 
 def _process_diff_stats_output(diff_stats_out):
   # format is additions tab removals.
-  m = re.match('([0-9]+)\t([0-9]+)', diff_stats_out)
+  m = re.match(r'([0-9]+)\t([0-9]+)', diff_stats_out)
   return (int(m.group(1)), int(m.group(2)))
