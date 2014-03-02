@@ -114,34 +114,36 @@ def not_assume_unchanged(fp):
   return SUCCESS
 
 
-def diff(fp):
+def diff(fp, staged=False):
   """Compute the diff of the given file with its last committed version.
 
   Args:
     fp: the path of the file to diff (e.g., 'paper.tex').
+    staged: True if a staged diff should be done.
 
   Returns:
-    the output of the diff command.
+    a 4-tuple of:
+      - a list of namedtuples with fields 'line', 'status', 'old_line_number'
+      and 'new_line_number' where 'status' is one of DIFF_INFO, DIFF_SAME,
+      DIFF_ADDED or DIFF_MINUS and 'old_line_number', 'new_line_number'
+      correspond to the line's old line number and new line number respectively.
+      (Note that, for example, if the line is DIFF_ADDED, then 'old_line_number'
+      is None since that line is not present in the old file).
+      - max_line_digits: the maximum amount of line digits found while parsing
+      the git diff output, this is useful for padding.
+      - number of lines added.
+      - number of lines removed.
   """
   fp = common.real_case(fp)
 
-  out, _ = common.safe_git_call('diff -- "%s"' % fp)
-  return _process_diff_output(_strip_diff_header(out.splitlines()))
-
-
-def staged_diff(fp):
-  """Compute the diff of staged version vs last committed version.
-
-  Args:
-    fp: the path of the file to diff (e.g., 'paper.tex').
-
-  Returns:
-    the output of the diff command.
-  """
-  fp = common.real_case(fp)
-
-  out, _ = common.safe_git_call('diff --cached -- "%s"' % fp)
-  return _process_diff_output(_strip_diff_header(out.splitlines()))
+  st = '--cached' if staged else ''
+  out, _ = common.safe_git_call('diff %s -- "%s"' % (st, fp))
+  if not out:
+    return ([], 0, 0, 0)
+  stats_out, _ = common.safe_git_call('diff %s --numstat -- "%s"' % (st, fp))
+  line, padding = _process_diff_output(_strip_diff_header(out.splitlines()))
+  additions, removals = _process_diff_stats_output(stats_out)
+  return (line, padding, additions, removals)
 
 
 # Private functions.
@@ -158,22 +160,6 @@ def _strip_diff_header(diff_out):
 
 
 def _process_diff_output(diff_out):
-  """Process the git diff output.
-
-  Args:
-    diff_out: a list of lines output by the git diff command.
-
-  Returns:
-    a 2-tuple of:
-      - a list of namedtuples with fields 'line', 'status', 'old_line_number'
-      and 'new_line_number' where 'status' is one of DIFF_INFO, DIFF_SAME,
-      DIFF_ADDED or DIFF_MINUS and 'old_line_number', 'new_line_number'
-      correspond to the line's old line number and new line number respectively.
-      (Note that, for example, if the line is DIFF_ADDED, then 'old_line_number'
-      is None since that line is not present in the old file).
-      - max_line_digits: return the maximum amount of line digits found while
-      parsing the git diff output, this is useful for padding.
-  """
   MIN_LINE_PADDING = 8
   LineData = collections.namedtuple(
       'LineData',
@@ -184,9 +170,9 @@ def _process_diff_output(diff_out):
   old_line_number = 1
   new_line_number = 1
 
+  # @@ -(start of old),(length of old) +(start of new),(length of new) @@
+  new_hunk_regex = r'^@@ -([0-9]+)[,]?([0-9]*) \+([0-9]+)[,]?([0-9]*) @@'
   for line in diff_out:
-    # @@ -(start of old),(length of old) +(start of new),(length of new) @@
-    new_hunk_regex = r'^@@ -([0-9]+)[,]?([0-9]*) \+([0-9]+)[,]?([0-9]*) @@'
     new_hunk_info = re.search(new_hunk_regex, line)
     if new_hunk_info:
       get_info_or_zero = lambda g: 0 if g == '' else int(g)
@@ -201,7 +187,7 @@ def _process_diff_output(diff_out):
                              max_line_digits])  # start + length of each diff.
     elif line.startswith(' '):
       resulting.append(
-          LineData(line, DIFF_SAME,  old_line_number, new_line_number))
+          LineData(line, DIFF_SAME, old_line_number, new_line_number))
       old_line_number += 1
       new_line_number += 1
     elif line.startswith('-'):
@@ -214,3 +200,9 @@ def _process_diff_output(diff_out):
   max_line_digits = len(str(max_line_digits))  # digits = len(string of number).
   max_line_digits = max(MIN_LINE_PADDING, max_line_digits + 1)
   return resulting, max_line_digits
+
+
+def _process_diff_stats_output(diff_stats_out):
+  # format is additions tab removals.
+  m = re.match('([0-9]+)\t([0-9]+)', diff_stats_out)
+  return (int(m.group(1)), int(m.group(2)))
