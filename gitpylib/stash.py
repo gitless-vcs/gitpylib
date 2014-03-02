@@ -62,9 +62,8 @@ def _stash_id(msg):
   if not out:
     return None
 
-  pattern = r'(stash@\{.+\}): '
-  result = re.match(pattern, out)
+  result = re.match(r'(stash@\{.+\}): ', out)
   if not result:
-    raise Exception('Unexpected output %s' % out)
+    raise common.UnexpectedOutputError('stash', out)
 
   return result.group(1)

@@ -148,7 +148,7 @@ def _parse_output(out):
   pattern = r'([\*| ]) ([^\s]+)[ ]+\w+ (.+)'
   result = re.match(pattern, out)
   if not result:
-    raise Exception('Unexpected output %s' % out)
+    raise common.UnexpectedOutputError('branch', out)
 
   tracks = None
   if result.group(3)[0] == '[':

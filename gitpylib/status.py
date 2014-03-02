@@ -124,7 +124,7 @@ def _is_au_file(fp):
   if out:
     f_out = common.remove_dups(out.splitlines(), lambda x: x[2:])
     if len(f_out) != 1:
-      raise Exception('Unexpected output of ls-files: {0}'.format(out))
+      raise common.UnexpectedOutputError('ls-files', out)
     ret = f_out[0][0] == 'h'
   return ret
 
