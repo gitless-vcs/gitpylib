@@ -118,12 +118,11 @@ def set_upstream(branch, upstream_branch):
     branch: the branch to set an upstream branch.
     upstream_branch: the upstream branch.
   """
-  ok, _, err = common.git_call(
+  ok, _, _ = common.git_call(
       'branch --set-upstream %s %s' % (branch, upstream_branch))
 
   if not ok:
-    if 'Not a valid object name' in err:
-      return UNFETCHED_OBJECT
+    return UNFETCHED_OBJECT
 
   return SUCCESS
 
