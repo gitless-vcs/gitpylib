@@ -127,6 +127,16 @@ def set_upstream(branch, upstream_branch):
   return SUCCESS
 
 
+def unset_upstream(branch):
+  """Unsets the upstream branch to branch.
+
+  Args:
+    branch: the branch to unset its upstream.
+  """
+  common.git_call('branch --unset-upstream %s' % branch)
+  return SUCCESS
+
+
 def _parse_output(out):
   """Parses branch list output.
 
