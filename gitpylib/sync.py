@@ -84,7 +84,7 @@ def rebase(new_base):
 def _parse_rebase_output(ok, out, err):
   # print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
-    if 'You have unstaged changes.\nPlease commit or stash them.\n' in err:
+    if 'Please commit or stash them' in err:
       # TODO(sperezde): add the files whose changes would be lost.
       return (LOCAL_CHANGES_WOULD_BE_LOST, None)
     elif ('The following untracked working tree files would be overwritten'
