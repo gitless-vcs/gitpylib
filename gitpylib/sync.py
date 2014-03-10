@@ -20,15 +20,16 @@ NOTHING_TO_PUSH = 6
 PUSH_FAIL = 7
 
 
-def commit(files, msg, skip_checks=False, stage_files=False):
+def commit(files, msg, skip_checks=False, include_staged_files=False):
   """Record changes in the local repository.
 
   Args:
     files: the files to commit.
     msg: the commit message.
-    skip_checks: if the pre-commit hook should be skipped or not (defaults to
-      False).
-    stage_files: whether to stage the given files before commiting or not.
+    skip_checks: if the pre-commit hook should be skipped or not. (Defaults to
+      False.)
+    include_staged_files: whether to include the contents of the staging area in
+      the commit or not. (Defaults to False.)
 
   Returns:
     the output of the commit command.
@@ -36,7 +37,7 @@ def commit(files, msg, skip_checks=False, stage_files=False):
   out, _ = common.safe_git_call(
       'commit {0}{1}-m"{2}" "{3}"'.format(
           '--no-verify ' if skip_checks else '',
-          '-i ' if stage_files else '',
+          '-i ' if include_staged_files else '',
           msg, '" "'.join(files)))
   return out
 
