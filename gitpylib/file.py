@@ -133,30 +133,32 @@ def diff(fp, staged=False):
       the git diff output, this is useful for padding.
       - number of lines added.
       - number of lines removed.
+      - header (the diff header as a list of lines).
   """
   fp = common.real_case(fp)
 
   st = '--cached' if staged else ''
   out, _ = common.safe_git_call('diff %s -- "%s"' % (st, fp))
   if not out:
-    return ([], 0, 0, 0)
+    return ([], 0, 0, 0, None)
   stats_out, _ = common.safe_git_call('diff %s --numstat -- "%s"' % (st, fp))
-  line, padding = _process_diff_output(_strip_diff_header(out.splitlines()))
+  header, body = _split_diff(out.splitlines())
+  line, padding = _process_diff_output(body)
   additions, removals = _process_diff_stats_output(stats_out)
-  return (line, padding, additions, removals)
+  return (line, padding, additions, removals, header)
 
 
 # Private functions.
 
 
-def _strip_diff_header(diff_out):
-  """Removes the diff header lines."""
+def _split_diff(diff_out):
+  """Splits the diff output into the diff header and body."""
   first_non_header_line = 0
   for line in diff_out:
     if line.startswith('@@'):
       break
     first_non_header_line += 1
-  return diff_out[first_non_header_line:]
+  return diff_out[:first_non_header_line], diff_out[first_non_header_line:]
 
 
 def _process_diff_output(diff_out):
