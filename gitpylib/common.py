@@ -6,6 +6,7 @@
 
 
 import os
+import shlex
 import subprocess
 import sys
 
@@ -42,8 +43,8 @@ def safe_git_call(cmd):
 
 def git_call(cmd):
   p = subprocess.Popen(
-      'git %s' % cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-      shell=True)
+      shlex.split('git %s' % cmd),
+      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   out, err = p.communicate()
   # Python 2/3 compatibility.
   if sys.version > '3':
