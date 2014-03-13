@@ -47,24 +47,24 @@ def _parse_log_output(out):
   curr_diff = None
   ret = []
   try:
-    line = out_it.next()
+    line = next(out_it)
     while True:
       m = re.match(pattern, line)
       if not m:
         raise common.UnexpectedOutputError('log', line)
-      line = out_it.next()
+      line = next(out_it)
       msg = []
       while not line.startswith('diff --git') and not line.startswith('[['):
         msg.append(line)
-        line = out_it.next()
+        line = next(out_it)
       diffs = []
       curr_diff = []
       while not line.startswith('[['):
         curr_diff.append(line)
-        line = out_it.next()
+        line = next(out_it)
         while not line.startswith('diff --git') and not line.startswith('[['):
           curr_diff.append(line)
-          line = out_it.next()
+          line = next(out_it)
         diffs.append(curr_diff)
         curr_diff = []
 
