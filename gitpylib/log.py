@@ -6,11 +6,7 @@
 import subprocess
 
 
-def log():
+def log(include_diffs=False):
   # The pipe to less shouldn't be here. TODO: fix.
-  subprocess.call('git log | less', shell=True)
-
-
-def log_p():
-  # The pipe to less shouldn't be here. TODO: fix.
-  subprocess.call('git log -p | less', shell=True)
+  subprocess.call(
+      'git log {0} | less'.format('-p' if include_diffs else ''), shell=True)
