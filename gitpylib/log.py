@@ -17,6 +17,8 @@ Commit = collections.namedtuple(
 CommitAuthor = collections.namedtuple(
   'CommitAuthor', ['name', 'email', 'date', 'date_relative'])
 
+CommitDiff = collections.namedtuple(
+  'CommitDiff', ['fp_before', 'fp_after', 'diff'])
 
 def log(include_diffs=False):
   log_fmt = r'[[%H] [%an] [%ae] [%aD] [%ar]]%n%B'
@@ -30,8 +32,12 @@ def _parse_log_output(out):
   def _create_ci(m, msg, diffs):
     processed_diffs = []
     for diff in diffs:
+      fp_before, fp_after = re.match(
+          'diff --git a/(.*) b/(.*)', diff[0]).group(1, 2)
       processed_diffs.append(
-          git_file._process_diff_output(git_file._split_diff(diff)[1]))
+          CommitDiff(
+            fp_before, fp_after,
+            git_file._process_diff_output(git_file._split_diff(diff)[1])))
     return Commit(
         m.group(1), CommitAuthor(*m.group(2, 3, 4, 5)), '\n'.join(msg),
         processed_diffs)
