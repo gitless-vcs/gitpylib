@@ -34,12 +34,13 @@ def commit(files, msg, skip_checks=False, include_staged_files=False):
   Returns:
     the output of the commit command.
   """
-  out, _ = common.safe_git_call(
-      'commit {0}{1}-m"{2}" "{3}"'.format(
-          '--no-verify ' if skip_checks else '',
-          '-i ' if include_staged_files else '',
-          msg, '" "'.join(files)))
-  return out
+  cmd = 'commit {0}-m"{1}"'.format('--no-verify ' if skip_checks else '', msg)
+  if not files and include_staged_files:
+    return common.safe_git_call(cmd)[0]
+
+  return common.safe_git_call(
+      '{0} {1}-- "{2}"'.format(
+          cmd, '-i ' if include_staged_files else '', '" "'.join(files)))[0]
 
 
 def merge(src):
