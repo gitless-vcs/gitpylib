@@ -1,6 +1,5 @@
 # gitpylib - a Python library for Git.
-# Copyright (c) 2013  Santiago Perez De Rosso.
-# Licensed under GNU GPL, version 2.
+# Licensed under GNU GPL v2.
 
 """Module for dealing with Git remotes."""
 
@@ -70,7 +69,7 @@ def show_all_v():
   for r in out.splitlines():
     result = re.match(pattern, r)
     if not result:
-      raise Exception('Unexpected output "%s"' % r)
+      raise common.UnexpectedOutputError('remote', r)
     remote_name = result.group(1)
     url = result.group(2)
     url_type = result.group(3)
@@ -113,6 +112,5 @@ def _show(remote):
   if not ok:
     if 'fatal: Could not read from remote repository' in err:
       return (REMOTE_UNREACHABLE, None)
-    else:
-      raise Exception('Unexpected output %s, err %s' % (out, err))
+    raise common.UnexpectedOutputError('remote', out, err=err)
   return (SUCCESS, out)

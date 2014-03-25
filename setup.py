@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name='gitpylib',
-    version='0.5',
+    version='0.6',
     description='A Python library for Git',
     long_description=open('README.md').read(),
     author='Santiago Perez De Rosso',
@@ -19,5 +19,11 @@ setup(
         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
         'Natural Language :: English',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
         'Topic :: Software Development :: Libraries',
         'Topic :: Software Development :: Version Control'))

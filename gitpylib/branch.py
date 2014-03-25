@@ -1,6 +1,5 @@
 # gitpylib - a Python library for Git.
-# Copyright (c) 2013  Santiago Perez De Rosso.
-# Licensed under GNU GPL, version 2.
+# Licensed under GNU GPL v2.
 
 """Module for dealing with Git branches."""
 
@@ -118,13 +117,22 @@ def set_upstream(branch, upstream_branch):
     branch: the branch to set an upstream branch.
     upstream_branch: the upstream branch.
   """
-  ok, _, err = common.git_call(
+  ok, _, _ = common.git_call(
       'branch --set-upstream %s %s' % (branch, upstream_branch))
 
   if not ok:
-    if 'Not a valid object name' in err:
-      return UNFETCHED_OBJECT
+    return UNFETCHED_OBJECT
 
+  return SUCCESS
+
+
+def unset_upstream(branch):
+  """Unsets the upstream branch to branch.
+
+  Args:
+    branch: the branch to unset its upstream.
+  """
+  common.git_call('branch --unset-upstream %s' % branch)
   return SUCCESS
 
 
@@ -148,7 +156,7 @@ def _parse_output(out):
   pattern = r'([\*| ]) ([^\s]+)[ ]+\w+ (.+)'
   result = re.match(pattern, out)
   if not result:
-    raise Exception('Unexpected output %s' % out)
+    raise common.UnexpectedOutputError('branch', out)
 
   tracks = None
   if result.group(3)[0] == '[':

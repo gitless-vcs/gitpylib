@@ -1,6 +1,5 @@
 # gitpylib - a Python library for Git.
-# Copyright (c) 2013  Santiago Perez De Rosso.
-# Licensed under GNU GPL, version 2.
+# Licensed under GNU GPL v2.
 
 """Module for getting the status of the repo."""
 
@@ -46,10 +45,8 @@ def of_file(fp):
   """
   fp = common.real_case(fp)
 
-  ok, out_ls_files, _ = common.git_call(
-      'ls-files -tvco --error-unmatch "%s"' % fp)
+  ok, _, _ = common.git_call('ls-files -tvco --error-unmatch "%s"' % fp)
   if not ok:
-    # The file doesn't exist.
     return FILE_NOT_FOUND
   s = _status_porcelain(fp).get(fp, None)
   return _status_from_output(s, _is_au_file(fp), fp)
@@ -126,7 +123,7 @@ def _is_au_file(fp):
   if out:
     f_out = common.remove_dups(out.splitlines(), lambda x: x[2:])
     if len(f_out) != 1:
-      raise Exception('Unexpected output of ls-files: {0}'.format(out))
+      raise common.UnexpectedOutputError('ls-files', out)
     ret = f_out[0][0] == 'h'
   return ret
 

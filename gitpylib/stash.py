@@ -1,6 +1,5 @@
 # gitpylib - a Python library for Git.
-# Copyright (c) 2013  Santiago Perez De Rosso.
-# Licensed under GNU GPL, version 2.
+# Licensed under GNU GPL v2.
 
 """Module for dealing with Git stashes."""
 
@@ -62,9 +61,8 @@ def _stash_id(msg):
   if not out:
     return None
 
-  pattern = r'(stash@\{.+\}): '
-  result = re.match(pattern, out)
+  result = re.match(r'(stash@\{.+\}): ', out)
   if not result:
-    raise Exception('Unexpected output %s' % out)
+    raise common.UnexpectedOutputError('stash', out)
 
   return result.group(1)

@@ -1,6 +1,5 @@
 # gitpylib - a Python library for Git.
-# Copyright (c) 2013  Santiago Perez De Rosso.
-# Licensed under GNU GPL, version 2.
+# Licensed under GNU GPL v2.
 
 """Sync module for Git sync operations."""
 
@@ -20,25 +19,27 @@ NOTHING_TO_PUSH = 6
 PUSH_FAIL = 7
 
 
-def commit(files, msg, skip_checks=False, stage_files=False):
+def commit(files, msg, skip_checks=False, include_staged_files=False):
   """Record changes in the local repository.
 
   Args:
     files: the files to commit.
     msg: the commit message.
-    skip_checks: if the pre-commit hook should be skipped or not (defaults to
-      False).
-    stage_files: whether to stage the given files before commiting or not.
+    skip_checks: if the pre-commit hook should be skipped or not. (Defaults to
+      False.)
+    include_staged_files: whether to include the contents of the staging area in
+      the commit or not. (Defaults to False.)
 
   Returns:
     the output of the commit command.
   """
-  out, _ = common.safe_git_call(
-      'commit {0}{1}-m"{2}" "{3}"'.format(
-          '--no-verify ' if skip_checks else '',
-          '-i ' if stage_files else '',
-          msg, '" "'.join(files)))
-  return out
+  cmd = 'commit {0}-m"{1}"'.format('--no-verify ' if skip_checks else '', msg)
+  if not files and include_staged_files:
+    return common.safe_git_call(cmd)[0]
+
+  return common.safe_git_call(
+      '{0} {1}-- "{2}"'.format(
+          cmd, '-i ' if include_staged_files else '', '" "'.join(files)))[0]
 
 
 def merge(src):
@@ -84,7 +85,7 @@ def rebase(new_base):
 def _parse_rebase_output(ok, out, err):
   # print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
-    if 'You have unstaged changes.\nPlease commit or stash them.\n' in err:
+    if 'Please commit or stash them' in err:
       # TODO(sperezde): add the files whose changes would be lost.
       return (LOCAL_CHANGES_WOULD_BE_LOST, None)
     elif ('The following untracked working tree files would be overwritten'
@@ -122,7 +123,7 @@ def rebase_in_progress():
 
 
 def push(src_branch, dst_remote, dst_branch):
-  ok, _, err = common.git_call(
+  _, _, err = common.git_call(
       'push %s %s:%s' % (dst_remote, src_branch, dst_branch))
   if err == 'Everything up-to-date\n':
     return (NOTHING_TO_PUSH, None)
