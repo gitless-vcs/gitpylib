@@ -1,6 +1,5 @@
 # gitpylib - a Python library for Git.
-# Copyright (c) 2013  Santiago Perez De Rosso.
-# Licensed under GNU GPL, version 2.
+# Licensed under GNU GPL v2.
 
 
 import collections

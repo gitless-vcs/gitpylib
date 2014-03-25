@@ -2,6 +2,16 @@ Gitpylib's Release Notes
 ========================
 
 
+25th Mar 2014 - 0.6
+-------------------
+
+* Unset upstream support.
+* Better wrapping of `git log`.
+* Apply patch suppport.
+* Return # of additions and deletions in diff.
+* Bug fixes and code cleanups.
+
+
 3rd Feb 2014 - 0.5
 ------------------
 
