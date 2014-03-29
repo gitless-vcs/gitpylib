@@ -78,9 +78,9 @@ def show(fp, cp):
   ok, out, _ = common.git_call('show %s:"%s"' % (cp, fp))
 
   if not ok:
-    return (FILE_NOT_FOUND_AT_CP, None)
+    return FILE_NOT_FOUND_AT_CP, None
 
-  return (SUCCESS, out)
+  return SUCCESS, out
 
 
 def assume_unchanged(fp):
@@ -139,12 +139,12 @@ def diff(fp, staged=False):
   st = '--cached' if staged else ''
   out, _ = common.safe_git_call('diff %s -- "%s"' % (st, fp))
   if not out:
-    return ([], 0, 0, 0, None)
+    return [], 0, 0, 0, None
   stats_out, _ = common.safe_git_call('diff %s --numstat -- "%s"' % (st, fp))
   header, body = _split_diff(out.splitlines())
   line, padding = _process_diff_output(body)
   additions, removals = _process_diff_stats_output(stats_out)
-  return (line, padding, additions, removals, header)
+  return line, padding, additions, removals, header
 
 
 # Private functions.
@@ -206,4 +206,4 @@ def _process_diff_output(diff_out):
 def _process_diff_stats_output(diff_stats_out):
   # format is additions tab removals.
   m = re.match(r'([0-9]+)\t([0-9]+)', diff_stats_out)
-  return (int(m.group(1)), int(m.group(2)))
+  return int(m.group(1)), int(m.group(2))

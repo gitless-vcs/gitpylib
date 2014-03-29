@@ -60,12 +60,12 @@ def _parse_merge_output(ok, out, err):
     #  raise Exception('conflict?')
     if ('Automatic merge failed; fix conflicts and then commit the result.'
             in out):
-      return (CONFLICT, None)
+      return CONFLICT, None
     else:
-      return (LOCAL_CHANGES_WOULD_BE_LOST, err.splitlines()[1:-2])
+      return LOCAL_CHANGES_WOULD_BE_LOST, err.splitlines()[1:-2]
   if out == 'Already up-to-date.\n':
-    return (NOTHING_TO_MERGE, None)
-  return (SUCCESS, None)
+    return NOTHING_TO_MERGE, None
+  return SUCCESS, None
 
 
 def abort_merge():
@@ -87,31 +87,31 @@ def _parse_rebase_output(ok, out, err):
   if not ok:
     if 'Please commit or stash them' in err:
       # TODO(sperezde): add the files whose changes would be lost.
-      return (LOCAL_CHANGES_WOULD_BE_LOST, None)
+      return LOCAL_CHANGES_WOULD_BE_LOST, None
     elif ('The following untracked working tree files would be overwritten'
           in err):
       # TODO(sperezde): add the files whose changes would be lost.
-      return (LOCAL_CHANGES_WOULD_BE_LOST, None)
-    return (CONFLICT, None)
+      return LOCAL_CHANGES_WOULD_BE_LOST, None
+    return CONFLICT, None
   if re.match(r'Current branch [^\s]+ is up to date.\n', out):
-    return (NOTHING_TO_REBASE, None)
-  return (SUCCESS, out)
+    return NOTHING_TO_REBASE, None
+  return SUCCESS, out
 
 
 def rebase_continue():
   ok, out, _ = common.git_call('rebase --continue')
   # print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
-    return (CONFLICT, None)
-  return (SUCCESS, out)
+    return CONFLICT, None
+  return SUCCESS, out
 
 
 def skip_rebase_commit():
   ok, out, _ = common.git_call('rebase --skip')
   # print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
-    return (CONFLICT, ['tbd1', 'tbd2'])
-  return (SUCCESS, out)
+    return CONFLICT, None
+  return SUCCESS, out
 
 
 def abort_rebase():
@@ -126,12 +126,12 @@ def push(src_branch, dst_remote, dst_branch):
   _, _, err = common.git_call(
       'push %s %s:%s' % (dst_remote, src_branch, dst_branch))
   if err == 'Everything up-to-date\n':
-    return (NOTHING_TO_PUSH, None)
+    return NOTHING_TO_PUSH, None
   elif ('Updates were rejected because a pushed branch tip is behind its remote'
         in err):
-    return (PUSH_FAIL, None)
+    return PUSH_FAIL, None
   # Not sure why, but git push returns output in stderr.
-  return (SUCCESS, err)
+  return SUCCESS, err
 
 
 def pull_rebase(remote, remote_b):

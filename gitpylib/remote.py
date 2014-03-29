@@ -46,7 +46,7 @@ def show(remote_name):
     REMOTE_UNREACHABLE and out is the output of the show command on success.
   """
   if remote_name not in show_all():
-    return (REMOTE_NOT_FOUND, None)
+    return REMOTE_NOT_FOUND, None
   return _show(remote_name)
 
 
@@ -88,8 +88,8 @@ def head_exist(remote_name, head):
   ok, out, _ = common.git_call(
       'ls-remote --heads %s %s' % (remote_name, head))
   if not ok:
-    return (False, REMOTE_UNREACHABLE)
-  return (len(out) > 0, REMOTE_BRANCH_NOT_FOUND)
+    return False, REMOTE_UNREACHABLE
+  return len(out) > 0, REMOTE_BRANCH_NOT_FOUND
 
 
 def branches(remote_name):
@@ -111,6 +111,6 @@ def _show(remote):
   ok, out, err = common.git_call('remote show %s' % remote)
   if not ok:
     if 'fatal: Could not read from remote repository' in err:
-      return (REMOTE_UNREACHABLE, None)
+      return REMOTE_UNREACHABLE, None
     raise common.UnexpectedOutputError('remote', out, err=err)
-  return (SUCCESS, out)
+  return SUCCESS, out

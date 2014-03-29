@@ -90,10 +90,10 @@ def status(name):
   """
   out, _ = common.safe_git_call('branch --list -vv %s' % name)
   if not out:
-    return (False, False, None)
+    return False, False, None
 
   _, is_current, tracks = _parse_output(out)
-  return (True, is_current, tracks)
+  return True, is_current, tracks
 
 
 def status_all():
@@ -151,7 +151,7 @@ def _parse_output(out):
   # the branch followed by the sha1, optionally followed by some remote tracking
   # info (between brackets) and finally the message of the last commit.
   if out.startswith('* (no branch)'):
-    return ('(no branch)', True, None)
+    return '(no branch)', True, None
 
   pattern = r'([\*| ]) ([^\s]+)[ ]+\w+ (.+)'
   result = re.match(pattern, out)
@@ -166,4 +166,4 @@ def _parse_output(out):
       tracks = track_info.split(':')[0]
     else:
       tracks = track_info
-  return (result.group(2), result.group(1) == '*', tracks)
+  return result.group(2), result.group(1) == '*', tracks
