@@ -145,4 +145,4 @@ def items(dic):
   try:
     return dic.iteritems()
   except AttributeError:
-    return dic.items()
+    return iter(dic.items())
