@@ -7,30 +7,7 @@
 import os
 
 from . import common
-
-
-SUCCESS = 1
-FILE_NOT_FOUND = 2
-
-# Possible status in which a Git file can be in.
-# (There are actually many more, but these seem to be the only ones relevant
-# to Gitless.)
-# TODO(sperezde): just have gitpylib's status return the status code and let
-# Gitless figure out the rest by itself.
-TRACKED_UNMODIFIED = 3
-TRACKED_MODIFIED = 4
-UNTRACKED = 5
-ASSUME_UNCHANGED = 6
-STAGED = 7
-DELETED = 8
-DELETED_STAGED = 9  # there are staged changes but then the file was deleted.
-# the file is marked as assume-unchanged but it was deleted.
-DELETED_ASSUME_UNCHANGED = 10
-IN_CONFLICT = 11
-IGNORED = 12
-# the file was a tracked file that was modified after being staged.
-MODIFIED_MODIFIED = 13
-ADDED_MODIFIED = 14  # file is a new file that was added and then modified.
+from . import config
 
 
 def of_file(fp):
@@ -40,148 +17,60 @@ def of_file(fp):
     fp: the path of the file to status (e.g., 'paper.tex').
 
   Returns:
-    FILE_NOT_FOUND if the given file doesn't exist or one of the possible
-    status codes.
+    None if the given file doesn't exist or one of the possible status codes.
   """
-  fp = common.real_case(fp)
-
-  ok, _, _ = common.git_call('ls-files -tvco --error-unmatch "%s"' % fp)
-  if not ok:
-    return FILE_NOT_FOUND
-  s = _status_porcelain(fp).get(fp, None)
-  return _status_from_output(s, _is_au_file(fp), fp)
+  return next(of(only_paths=[fp]), (None, None))[1]
 
 
-def of_repo(include_tracked_unmodified_fps=True):
-  """Gets the status of the repo relative to the cwd.
-
-  Args:
-    include_tracked_unmodified_fps: if True, files that are tracked but
-      unmodified will be also reported. Setting it to False improves performance
-      significantly if the repo is big. (Defaults to True.)
-
-  Yields:
-      A pair (status, fp) for each file in the repo. fp is a file path and
-      status is the status of the file (TRACKED_UNMODIFIED, TRACKED_MODIFIED,
-      UNTRACKED, ASSUME_UNCHANGED, STAGED, etc -- see above).
-  """
-  status_codes = _status_porcelain(os.getcwd())
-  au_fps = set(au_files(relative_to_cwd=True))
-  for au_fp in au_fps:
-    if au_fp not in status_codes:
-      status_codes[au_fp] = None
-  if include_tracked_unmodified_fps:
-    all_fps_under_cwd = common.get_all_fps_under_cwd()
-    for fp_under_cwd in all_fps_under_cwd:
-      if fp_under_cwd not in status_codes:
-        status_codes[fp_under_cwd] = None
-  # Python 2/3 compatibility.
-  status_codes_items = []
-  try:
-    status_codes_items = status_codes.iteritems()
-  except AttributeError:
-    status_codes_items = status_codes.items()
-
-  for s_fp, s in status_codes_items:
-    status = _status_from_output(s, s_fp in au_fps, s_fp)
-    yield (status, s_fp)
-
-
-def au_files(relative_to_cwd=False):
-  """Gets all assumed unchanged files.
-
-  Args:
-    relative_to_cwd: if True then only those au files under the cwd are
-      reported. If False, all au files in the repository are reported. (Defaults
-      to False.)
-  """
-  out, _ = common.safe_git_call(
-      'ls-files -v {0}'.format(
-          '--full-name "{0}"'.format(
-              common.repo_dir()) if not relative_to_cwd else ''))
-  ret = []
-  # There could be dups in the output from ls-files if, for example, there are
-  # files in conflict.
-  for f_out in common.remove_dups(out.splitlines(), lambda x: x[2:]):
-    if f_out[0] == 'h':
-      ret.append(f_out[2:])
-  return ret
-
-
-# Private functions.
-
-
-def _is_au_file(fp):
-  """True if the given fp corresponds to an assume unchanged file.
-
-  Args:
-    fp: the filepath to check (fp must be a file not a dir).
-  """
-  out, _ = common.safe_git_call(
-      'ls-files -v --full-name "{0}"'.format(fp))
-  ret = False
-  if out:
-    f_out = common.remove_dups(out.splitlines(), lambda x: x[2:])
-    if len(f_out) != 1:
-      raise common.UnexpectedOutputError('ls-files', out)
-    ret = f_out[0][0] == 'h'
-  return ret
-
-
-def _status_porcelain(pathspec):
-  """Executes the status porcelain command with the given pathspec.
-
-  Ignored and untracked files are reported.
+def of(only_paths=None, relative_paths=None):
+  """Status of the repo or of the only_paths given.
 
   Returns:
-    A dict of fp -> status code. All fps are relative to the cwd.
+    A list of (fp, status) pairs. fp is a file path and status is a two or three
+    letter code corresponding to the output from status porcelain and ls-files
+    (see git manual for more info).
   """
-  cwd = os.getcwd()
+  if not relative_paths:
+    c = config.get('status.relativePaths')
+    relative_paths = c if c else True  # git seems to default to true
+
+  pathspecs = ('"' + '" "'.join(only_paths) + '"') if only_paths else ''
+  ret = {}
   repo_dir = common.repo_dir()
 
-  def sanitize_fp(fp):
-    # The more pythonic way would be to use startswith instead of [0] but the
-    # latter is faster and it makes a difference when the repo is big.
-    if fp[0] == '"' and fp.endswith('"'):
-      fp = fp[1:-1]
-    # The paths outputted by status are relative to the repodir, we need to make
-    # them relative to the cwd.
-    return os.path.relpath(os.path.join(repo_dir, fp), cwd)
+  def status_porcelain():
+    out, _ = common.safe_git_call(
+        'status --porcelain -u --ignored {0}'.format(pathspecs))
+    for f_out in out.splitlines():
+      # Output is in the form <status> <file path>.
+      # <status> is 2 chars long.
+      fp, s = f_out[3:], f_out[:2]
+      if fp.startswith('"'):
+        fp = fp[1:-1]
+      if relative_paths:
+        fp = os.path.relpath(os.path.join(repo_dir, fp))
+      ret[fp] = s
 
-  out_status, _ = common.safe_git_call(
-      'status --porcelain -u --ignored "{0}"'.format(pathspec))
-  ret = {}
-  for f_out_status in out_status.splitlines():
-    # Output is in the form <status> <file path>.
-    # <status> is 2 chars long.
-    ret[sanitize_fp(f_out_status[3:])] = f_out_status[:2]
-  return ret
+  def ls_files():
+    out, _ = common.safe_git_call(
+        'ls-files -v --full-name -- {0}'.format(pathspecs))
+    for f_out in common.remove_dups(out.splitlines(), lambda x: x[2:]):
+      fp, s = f_out[2:], f_out[0]
+      if relative_paths:
+        fp = os.path.relpath(os.path.join(repo_dir, fp))
+      if fp in ret:
+        ret[fp] = ret[fp] + s
+      else:
+        ret[fp] = '  ' + s
+
+  status_porcelain()
+  ls_files()
+  return common.items(ret)
 
 
-def _status_from_output(s, is_au, fp):
-  if not s:
-    if is_au:
-      if not os.path.exists(fp):
-        return DELETED_ASSUME_UNCHANGED
-      return ASSUME_UNCHANGED
-    else:
-      return TRACKED_UNMODIFIED
-  if s == '??':
-    return UNTRACKED
-  elif s == '!!':
-    return IGNORED
-  elif s == ' M':
-    return TRACKED_MODIFIED
-  elif s == 'A ':
-    return STAGED
-  elif s == ' D':
-    return DELETED
-  elif s == 'AD':
-    return DELETED_STAGED
-  elif s == 'MM':
-    return MODIFIED_MODIFIED
-  elif s == 'AM':
-    return ADDED_MODIFIED
-  elif s == 'AA' or s == 'M ' or s == 'DD' or 'U' in s:
-    return IN_CONFLICT
-  raise Exception('Failed to get status of file {0}, s is "{1}"'.format(fp, s))
+def au_files():
+  """Assumed unchanged files."""
+  out, _ = common.safe_git_call('ls-files -v --full-name')
+  for f_out in common.remove_dups(out.splitlines(), lambda x: x[2:]):
+    if f_out[0] == 'h':
+      yield f_out[2:]

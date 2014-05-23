@@ -116,17 +116,15 @@ def remove_dups(list, key):
     list: the list to read from.
     key: a function that receives an element from list and returns its key.
 
-  Returns:
-    a new list without duplicates.
+  Yields:
+    unique elements of the given list
   """
   keys = set()
-  ret = []
   for a in list:
     k_a = key(a)
     if k_a not in keys:
       keys.add(k_a)
-      ret.append(a)
-  return ret
+      yield a
 
 
 def get_all_fps_under_cwd():
@@ -140,3 +138,11 @@ def get_all_fps_under_cwd():
       dirnames.remove('.git')
     for fp in filenames:
       yield os.path.relpath(os.path.join(dirpath, fp))
+
+
+def items(dic):
+  """Py 2/3 compatible way of getting the items of a dictionary."""
+  try:
+    return dic.iteritems()
+  except AttributeError:
+    return dic.items()
