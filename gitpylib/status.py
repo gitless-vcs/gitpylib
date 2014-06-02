@@ -34,7 +34,11 @@ def of(only_paths=None, relative_paths=None):
     c = config.get('status.relativePaths')
     relative_paths = c if c else True  # git seems to default to true
 
-  pathspecs = ('"' + '" "'.join(only_paths) + '"') if only_paths else ''
+  if only_paths:
+    pathspecs = '"' + '" "'.join(only_paths) + '"'
+  else:
+    pathspecs = common.repo_dir()
+
   ret = {}
   repo_dir = common.repo_dir()
 
