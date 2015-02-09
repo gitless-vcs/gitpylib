@@ -4,10 +4,14 @@
 """Module for dealing with Git branches."""
 
 
+import collections
 import re
 
 from . import common
 
+
+BranchStatus = collections.namedtuple(
+  'BranchStatus', ['name', 'is_current', 'tracks'])
 
 SUCCESS = 1
 UNFETCHED_OBJECT = 2
@@ -83,27 +87,26 @@ def status(name):
     name: the name of the branch to status.
 
   Returns:
-    a tuple (exists, is_current, tracks) where exists and is_current are
-    boolean values and tracks is a string representing the remote branch it
-    tracks (in the format 'remote_name/remote_branch') or None if it is a local
-    branch.
+    None if the branch doesn't exist or a namedtuple (name, is_current, tracks)
+    where is_current is a boolean value and tracks is a string representing the
+    remote branch it tracks (in the format 'remote_name/remote_branch') or None
+    if it is a local branch.
   """
   out, _ = common.safe_git_call('branch --list -vv %s' % name)
   if not out:
-    return False, False, None
+    return None
 
-  _, is_current, tracks = _parse_output(out)
-  return True, is_current, tracks
+  return _parse_output(out)
 
 
 def status_all():
   """Get the status of all existing branches.
 
   Yields:
-    tuples of the form (name, is_current, tracks) where is_current is a boolean
-    value and tracks is a string representing the remote branch it tracks (in
-    the format 'remote_name/remote_branch') or None if it is a local branch.
-    name could be equal to '(no branch)' if the user is in no branch.
+    namedtuples of the form (name, is_current, tracks) where is_current is a
+    boolean value and tracks is a string representing the remote branch it
+    tracks (in the format 'remote_name/remote_branch') or None if it is a local
+    branch. name could be equal to '(no branch)' if the user is in no branch.
   """
   out, _ = common.safe_git_call('branch --list -vv')
   for b in out.splitlines():
@@ -151,7 +154,7 @@ def _parse_output(out):
   # the branch followed by the sha1, optionally followed by some remote tracking
   # info (between brackets) and finally the message of the last commit.
   if out.startswith('* (no branch)'):
-    return '(no branch)', True, None
+    return BranchStatus('(no branch)', True, None)
 
   pattern = r'([\*| ]) ([^\s]+)[ ]+\w+ (.+)'
   result = re.match(pattern, out)
@@ -166,4 +169,4 @@ def _parse_output(out):
       tracks = track_info.split(':')[0]
     else:
       tracks = track_info
-  return result.group(2), result.group(1) == '*', tracks
+  return BranchStatus(result.group(2), result.group(1) == '*', tracks)
