@@ -37,7 +37,7 @@ def stage(fp):
 
   fp = common.real_case(fp)
 
-  common.safe_git_call('add "%s"' % fp)
+  common.safe_git_call('add "{0}"'.format(fp))
   return SUCCESS
 
 
@@ -58,7 +58,7 @@ def unstage(fp):
   # http://comments.gmane.org/gmane.comp.version-control.git/211242.
   # So, we need to ignore the return code (unfortunately) and hope that it
   # works.
-  common.git_call('reset HEAD "%s"' % fp)
+  common.git_call('reset HEAD "{0}"'.format(fp))
   return SUCCESS
 
 
@@ -75,7 +75,7 @@ def show(fp, cp):
   """
   fp = common.real_case(fp)
 
-  ok, out, _ = common.git_call('show %s:"%s"' % (cp, fp))
+  ok, out, _ = common.git_call('show {0}:"{1}"'.format(cp, fp))
 
   if not ok:
     return FILE_NOT_FOUND_AT_CP, None
@@ -94,7 +94,7 @@ def assume_unchanged(fp):
   """
   fp = common.real_case(fp)
 
-  common.safe_git_call('update-index --assume-unchanged "%s"' % fp)
+  common.safe_git_call('update-index --assume-unchanged "{0}"'.format(fp))
   return SUCCESS
 
 
@@ -109,7 +109,7 @@ def not_assume_unchanged(fp):
   """
   fp = common.real_case(fp)
 
-  common.safe_git_call('update-index --no-assume-unchanged "%s"' % fp)
+  common.safe_git_call('update-index --no-assume-unchanged "{0}"'.format(fp))
   return SUCCESS
 
 
@@ -137,10 +137,11 @@ def diff(fp, staged=False):
   fp = common.real_case(fp)
 
   st = '--cached' if staged else ''
-  out, _ = common.safe_git_call('diff %s -- "%s"' % (st, fp))
+  out, _ = common.safe_git_call('diff {0} -- "{1}"'.format(st, fp))
   if not out:
     return [], 0, 0, 0, None
-  stats_out, _ = common.safe_git_call('diff %s --numstat -- "%s"' % (st, fp))
+  stats_out, _ = common.safe_git_call(
+      'diff {0} --numstat -- "{1}"'.format(st, fp))
   header, body = _split_diff(out.splitlines())
   line, padding = _process_diff_output(body)
   additions, removals = _process_diff_stats_output(stats_out)

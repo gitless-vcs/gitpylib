@@ -30,7 +30,7 @@ def checkout(name):
   Returns:
     SUCCESS or NONEXISTENT_BRANCH
   """
-  ok, _, _ = common.git_call('checkout %s' % name)
+  ok, _, _ = common.git_call('checkout {0}'.format(name))
   if not ok:
     return NONEXISTENT_BRANCH
   return SUCCESS
@@ -67,7 +67,7 @@ def force_delete(name):
   Returns:
     SUCCESS or NONEXISTENT_BRANCH
   """
-  ok, _, _ = common.git_call('branch -D %s' % name)
+  ok, _, _ = common.git_call('branch -D {0}'.format(name))
   if not ok:
     return NONEXISTENT_BRANCH
   return SUCCESS
@@ -92,7 +92,7 @@ def status(name):
     remote branch it tracks (in the format 'remote_name/remote_branch') or None
     if it is a local branch.
   """
-  out, _ = common.safe_git_call('branch --list -vv %s' % name)
+  out, _ = common.safe_git_call('branch --list -vv {0}'.format(name))
   if not out:
     return None
 
@@ -121,7 +121,7 @@ def set_upstream(branch, upstream_branch):
     upstream_branch: the upstream branch.
   """
   ok, _, _ = common.git_call(
-      'branch --set-upstream %s %s' % (branch, upstream_branch))
+      'branch --set-upstream {0} {1}'.format(branch, upstream_branch))
 
   if not ok:
     return UNFETCHED_OBJECT
@@ -135,7 +135,7 @@ def unset_upstream(branch):
   Args:
     branch: the branch to unset its upstream.
   """
-  common.git_call('branch --unset-upstream %s' % branch)
+  common.git_call('branch --unset-upstream {0}'.format(branch))
   return SUCCESS
 
 

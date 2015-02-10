@@ -37,12 +37,12 @@ def safe_git_call(cmd):
   ok, out, err = git_call(cmd)
   if ok:
     return out, err
-  raise Exception('%s failed: out is %s, err is %s' % (cmd, out, err))
+  raise Exception('{0} failed: out is {1}, err is {2}'.format(cmd, out, err))
 
 
 def git_call(cmd):
   p = subprocess.Popen(
-      shlex.split('git %s' % cmd),
+      shlex.split('git {0}'.format(cmd)),
       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   out, err = p.communicate()
   # Python 2/3 compatibility.
@@ -76,10 +76,8 @@ def real_case(fp):
         found = True
         break
     if not found:
-      # TODO(sperezde): fix this hack
-      # raise Exception("Invalid file %s: the file doesn't exist" % fp)
-      # Temp hack until I figure out how to deal with filenames with special
-      # characters.
+      # TODO(sperezde): fix this hack (deal with filenames with special
+      # characters).
       return fp
   return os.path.join(*ret)
 

@@ -48,12 +48,11 @@ def merge(src):
   Args:
     src: the source branch to pick up changes from.
   """
-  ok, out, err = common.git_call('merge %s' % src)
+  ok, out, err = common.git_call('merge {0}'.format(src))
   return _parse_merge_output(ok, out, err)
 
 
 def _parse_merge_output(ok, out, err):
-  # print 'out is <%s>, err is <%s>' % (out, err)
   if not ok:
     #if out.startswith('Auto-merging'):
       # conflict?
@@ -78,7 +77,7 @@ def merge_in_progress():
 
 
 def rebase(new_base):
-  ok, out, err = common.git_call('rebase %s' % new_base)
+  ok, out, err = common.git_call('rebase {0}'.format(new_base))
   return _parse_rebase_output(ok, out, err)
 
 
@@ -124,7 +123,7 @@ def rebase_in_progress():
 
 def push(src_branch, dst_remote, dst_branch):
   _, _, err = common.git_call(
-      'push %s %s:%s' % (dst_remote, src_branch, dst_branch))
+      'push {0} {1}:{2}'.format(dst_remote, src_branch, dst_branch))
   if err == 'Everything up-to-date\n':
     return NOTHING_TO_PUSH, None
   elif ('Updates were rejected because a pushed branch tip is behind its remote'
@@ -135,10 +134,11 @@ def push(src_branch, dst_remote, dst_branch):
 
 
 def pull_rebase(remote, remote_b):
-  ok, out, err = common.git_call('pull --rebase %s %s' % (remote, remote_b))
+  ok, out, err = common.git_call(
+      'pull --rebase {0} {1}'.format(remote, remote_b))
   return _parse_rebase_output(ok, out, err)
 
 
 def pull_merge(remote, remote_b):
-  ok, out, err = common.git_call('pull %s %s' % (remote, remote_b))
+  ok, out, err = common.git_call('pull {0} {1}'.format(remote, remote_b))
   return _parse_merge_output(ok, out, err)

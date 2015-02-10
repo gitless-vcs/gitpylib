@@ -17,7 +17,7 @@ def all(msg):
   Args:
     msg: the msg for the stash to create.
   """
-  common.safe_git_call('stash save --all -- "%s"' % msg)
+  common.safe_git_call('stash save --all -- "{0}"'.format(msg))
 
 
 def pop(msg):
@@ -30,7 +30,7 @@ def pop(msg):
   if not s_id:
     return
 
-  common.safe_git_call('stash pop %s' % s_id)
+  common.safe_git_call('stash pop {0}'.format(s_id))
 
 
 def drop(msg):
@@ -43,7 +43,7 @@ def drop(msg):
   if not s_id:
     return
 
-  common.safe_git_call('stash drop %s' % s_id)
+  common.safe_git_call('stash drop {0}'.format(s_id))
 
 
 def _stash_id(msg):
@@ -56,7 +56,7 @@ def _stash_id(msg):
     the stash id of the stash with the given msg or None if no matching stash is
     found.
   """
-  out, _ = common.safe_git_call('stash list --grep=": %s"' % msg)
+  out, _ = common.safe_git_call('stash list --grep=": {0}"'.format(msg))
 
   if not out:
     return None

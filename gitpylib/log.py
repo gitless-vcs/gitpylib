@@ -9,7 +9,6 @@ from . import common
 from . import file as git_file
 
 
-# TODO: add more info like parents, tree, committer, etc.
 Commit = collections.namedtuple(
   'Commit', ['id', 'author', 'msg', 'diffs'])
 
@@ -18,6 +17,7 @@ CommitAuthor = collections.namedtuple(
 
 CommitDiff = collections.namedtuple(
   'CommitDiff', ['fp_before', 'fp_after', 'diff'])
+
 
 def log(include_diffs=False):
   log_fmt = r'[[%H] [%an] [%ae] [%aD] [%ar]]%n%B'
