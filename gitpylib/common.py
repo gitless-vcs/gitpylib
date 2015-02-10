@@ -37,12 +37,12 @@ def safe_git_call(cmd):
   ok, out, err = git_call(cmd)
   if ok:
     return out, err
-  raise Exception('%s failed: out is %s, err is %s' % (cmd, out, err))
+  raise Exception('{0} failed: out is {1}, err is {2}'.format(cmd, out, err))
 
 
 def git_call(cmd):
   p = subprocess.Popen(
-      shlex.split('git %s' % cmd),
+      shlex.split('git {0}'.format(cmd)),
       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   out, err = p.communicate()
   # Python 2/3 compatibility.
@@ -76,10 +76,8 @@ def real_case(fp):
         found = True
         break
     if not found:
-      # TODO(sperezde): fix this hack
-      # raise Exception("Invalid file %s: the file doesn't exist" % fp)
-      # Temp hack until I figure out how to deal with filenames with special
-      # characters.
+      # TODO(sperezde): fix this hack (deal with filenames with special
+      # characters).
       return fp
   return os.path.join(*ret)
 
@@ -116,17 +114,15 @@ def remove_dups(list, key):
     list: the list to read from.
     key: a function that receives an element from list and returns its key.
 
-  Returns:
-    a new list without duplicates.
+  Yields:
+    unique elements of the given list
   """
   keys = set()
-  ret = []
   for a in list:
     k_a = key(a)
     if k_a not in keys:
       keys.add(k_a)
-      ret.append(a)
-  return ret
+      yield a
 
 
 def get_all_fps_under_cwd():
@@ -140,3 +136,11 @@ def get_all_fps_under_cwd():
       dirnames.remove('.git')
     for fp in filenames:
       yield os.path.relpath(os.path.join(dirpath, fp))
+
+
+def items(dic):
+  """Py 2/3 compatible way of getting the items of a dictionary."""
+  try:
+    return dic.iteritems()
+  except AttributeError:
+    return iter(dic.items())

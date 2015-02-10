@@ -7,7 +7,7 @@ from . import common
 
 def clone(repo):
   """Returns True if the clone succeeded, False if otherwise."""
-  return common.git_call('clone %s .' % repo)[0]
+  return common.git_call('clone {0} .'.format(repo))[0]
 
 
 def init():
